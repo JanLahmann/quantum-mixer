@@ -1,0 +1,138 @@
+$qubit-name-width: 50px;
+$qubit-info-width: 200px;
+
+#composer-main {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+#composer-newoperation-render {
+  display: none;
+  &.active {
+    display: block;
+  }
+}
+
+.composer-qubit-container {
+  flex: 1 0 auto;
+
+  display: flex;
+  height: var(--qo-qubit-height);
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+
+  .composer-qubit-name {
+    flex: 0 0 $qubit-name-width;
+  }
+
+  .composer-qubit-line {
+    height: 1px;
+    flex: 1 0 auto;
+    background-color: black;
+  }
+}
+
+#composer-operations-container-outer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: $qubit-name-width;
+  right: 0;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+#composer-operations-container {
+  /* fill full space */
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: start;
+  gap: 10px;
+
+  .composer-operations-slot {
+    flex: 0 0 var(--qo-qubit-height);
+    position: relative;
+  }
+
+  .composer-operations-operation {
+    position: absolute;
+    left: 50%;
+    display: block;
+  }
+
+  .qubit-operations-drop-zone {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: var(--qo-qubit-height);
+    z-index: 100;
+  }
+}
+
+#composer-main.is-dragging {
+
+  .composer-operations-slot.drag-active {
+    border-color: lightblue;
+    border-style: solid;
+    border-width: 1px;
+  }
+
+  .qubit-operations-drop-zone {
+    display: block !important;
+  }
+}
+
+#composer-detail-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background-color: lightgray;
+
+  span {
+    position: relative;
+    line-height: 20px;
+    margin-top: -10px;
+    top: 50%;
+    width: 100%;
+    display: block;
+    text-align: center;
+  }
+}
+
+#composer-main.has-info {
+
+  #composer-operations-container-outer {
+    right: $qubit-info-width;
+  }
+  #composer-detail-container {
+    width: $qubit-info-width;
+  }
+}
+
+#composer-newoperations-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  margin-bottom: 30px;
+
+  .composer-newoperation {
+    flex: 0 0 50px;
+    height: 50px;
+    display: block;
+    line-height: 50px;
+    text-align: center;
+    background-color: lightblue;
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,72 @@
+<div id="composer-newoperations-container">
+  <div class="composer-newoperation" draggable="true" (dragstart)="handleNewOperationDragStart($event, ComposerCatalogueType.HADAMARD)" (dragend)="handleDragEnd()">H</div>
+  <div class="composer-newoperation" draggable="true" (dragstart)="handleNewOperationDragStart($event, ComposerCatalogueType.NOT)" (dragend)="handleDragEnd()">NOT</div>
+  <div class="composer-newoperation" draggable="true" (dragstart)="handleNewOperationDragStart($event, ComposerCatalogueType.CNOT)" (dragend)="handleDragEnd()">CNOT</div>
+  <div class="composer-newoperation" draggable="true" (dragstart)="handleNewOperationDragStart($event, ComposerCatalogueType.CCNOT)" (dragend)="handleDragEnd()">CCNOT</div>
+  <div class="composer-newoperation" draggable="true" (dragstart)="handleNewOperationDragStart($event, ComposerCatalogueType.IDENTITY)" (dragend)="handleDragEnd()">I</div>
+  <div class="composer-newoperation" draggable="true" (dragstart)="handleNewOperationDragStart($event, ComposerCatalogueType.Z)" (dragend)="handleDragEnd()">Z</div>
+  <div class="composer-newoperation" draggable="true" (dragstart)="handleNewOperationDragStart($event, ComposerCatalogueType.RY)" (dragend)="handleDragEnd()">RY</div>
+</div>
+
+<div
+  id="composer-main"
+  [ngClass]="{
+    'is-dragging': isDragging,
+    'has-info': hasInfo
+  }"
+  >
+  <div *ngFor="let qIdx of composer.numQubits | asRange" class="composer-qubit-container">
+    <span class="composer-qubit-name">q{{qIdx}}</span>
+    <div class="composer-qubit-line"></div>
+  </div>
+  <div id="composer-operations-container-outer">
+    <div #operationsContainer id="composer-operations-container" [ngStyle]="{'min-width': cssRelValue((composer.viewData?.relativeWidth || 0) + 3)}">
+      <div
+        *ngFor="let slot of composer.viewData?.slots; let slotIdx = index"
+        class="composer-operations-slot"
+        [ngClass]="{'drag-active': slotIdx == currentDragZoneOver}"
+        [ngStyle]="{
+          'flex-basis': cssRelValue(slot.relativeWidth)
+        }">
+        <div
+          *ngFor="let op of slot.operations"
+          [id]="'op-'+op.operationId"
+          class="composer-operations-operation"
+          [ngStyle]="{
+            'top': cssRelValue(op.firstQubit),
+            'height': cssRelValue(op.numQubitsCovered),
+            'width': cssRelValue(op.relativeWidth),
+            'margin-left': cssRelValue(-op.relativeWidth/2)
+          }"
+          [innerHTML]="op.operationSvg | sanitizeHtml"
+          draggable="true"
+          (dragstart)="handleOperationDragStart($event, op.operationId)"
+          (dragend)="handleDragEnd()"
+          >
+        </div>
+        <div
+          *ngFor="let qIdx of composer.numQubits | asRange"
+          class="qubit-operations-drop-zone"
+          [ngStyle]="{'top': cssRelValue(qIdx)}"
+          (dragover)="handleDropzoneDragOver($event, qIdx, slotIdx)"
+          (drop)="handleDropzoneDrop($event, qIdx, slotIdx)"
+          >
+        </div>
+      </div>
+      <div id="composer-newoperation-render" class="composer-operations-slot"></div>
+      <div class="composer-operations-slot" [ngClass]="{'drag-active': currentDragZoneOver == -2}">
+        <div
+          *ngFor="let qIdx of composer.numQubits | asRange"
+          class="qubit-operations-drop-zone"
+          [ngStyle]="{'top': cssRelValue(qIdx), 'flex-basis': cssRelValue(3)}"
+          (dragover)="handleDropzoneDragOver($event, qIdx, -2)"
+          (drop)="handleDropzoneDrop($event, qIdx, -1)"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="composer-detail-container" (dragover)="handleRemoveZoneDragOver($event)" (drop)="handleRemoveZoneDrop($event)">
+    <span>Remove</span>
+  </div>
+</div>

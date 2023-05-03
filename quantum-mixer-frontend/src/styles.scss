@@ -1,0 +1,19 @@
+/* You can add global styles to this file, and also import other style files */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+:root {
+  --qo-qubit-height: 50px;
+}
+
+// needs to be set here to avoid DOM shadowing
+.dragging-operation {
+  opacity: 0.3
+}
