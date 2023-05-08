@@ -4,6 +4,7 @@ import { ApiProbabilitiesResponse } from '../api';
 import { ChartConfiguration } from 'chart.js';
 import { ComposerMainComponent } from '../composer/composer-main/composer-main.component';
 import { OperationType } from '../composer/operation';
+import { ProbabilitiesChartComponent } from '../probabilities-chart/probabilities-chart.component';
 
 
 @Component({
@@ -14,6 +15,7 @@ import { OperationType } from '../composer/operation';
 export class PageEditorComponent implements OnInit {
 
   @ViewChild('appComposer') appComposer: ComposerMainComponent | undefined;
+  @ViewChild('appProbabilitiesChart') appProbabilitiesChart: ProbabilitiesChartComponent | undefined;
 
   public chartData: ChartConfiguration<'bar'>['data'] = {
     labels: [],
@@ -59,16 +61,7 @@ export class PageEditorComponent implements OnInit {
     clearTimeout(this._updateTimeout);
     this._updateTimeout = setTimeout(() => {
       this.fetchProbabilities(circuitData).then(res => {
-        this.chartData = {
-          labels: res.bits,
-          datasets: Object.keys(res.results).map(key => {
-            const data = res.results[<'analytical'|'qasm'|'mock'>key];
-            return {
-              label: key,
-              data: data
-            }
-          })
-        }
+        this.appProbabilitiesChart?.update(res);
       }, error => {
         console.error(error);
       })
