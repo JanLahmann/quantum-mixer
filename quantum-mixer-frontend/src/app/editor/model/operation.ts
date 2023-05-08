@@ -13,7 +13,9 @@ export enum OperationType {
   /** Ry */
   RY       = 'ry',
   /** Identity */
-  IDENTITY = 'i'
+  IDENTITY = 'i',
+  /** Swap */
+  SWAP     = 'swap'
 }
 
 export interface OperationProperties {
@@ -46,7 +48,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.HADAMARD]: {
     type: OperationType.HADAMARD,
     title: 'Hadamard',
-    description: '',
+    description: 'The H, or Hadamard, gate rotates the states ∣0⟩∣0⟩ and ∣1⟩∣1⟩ to ∣+⟩∣+⟩ and ∣−⟩∣−⟩, respectively. It is useful for making superpositions. If you have a universal gate set on a classical computer and add the Hadamard gate, it becomes a universal gate set on a quantum computer.',
     numTargetQubits: 1,
     numControlQubits: [0, 1],
     parameters: [],
@@ -57,9 +59,9 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.NOT]: {
     type: OperationType.NOT,
     title: 'NOT',
-    description: '',
+    description: 'The NOT gate, also known as the Pauli X gate, flips the ∣0⟩∣0⟩ state to ∣1⟩∣1⟩, and vice versa. The NOT gate is equivalent to RX for the angle ππ or to HZH.',
     numTargetQubits: 1,
-    numControlQubits: [0, 2],
+    numControlQubits: [0, 4],
     parameters: [],
     color: 'rgb(83, 139, 247)',
     text: '+',
@@ -68,7 +70,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.Z]: {
     type: OperationType.Z,
     title: 'Z',
-    description: '',
+    description: 'The Pauli Z gate acts as identity on the ∣0⟩∣0⟩ state and multiplies the sign of the ∣1⟩∣1⟩ state by -1. It therefore flips the ∣+⟩∣+⟩ and ∣−⟩∣−⟩ states. In the +/- basis, it plays the same role as the NOT gate in the ∣0⟩∣0⟩/∣1⟩∣1⟩ basis.',
     numTargetQubits: 1,
     numControlQubits: [0, 2],
     parameters: [],
@@ -79,7 +81,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.IDENTITY]: {
     type: OperationType.IDENTITY,
     title: 'Identity',
-    description: '',
+    description: 'The identity gate (sometimes called the Id or the I gate) is actually the absence of a gate. It ensures that nothing is applied to a qubit for one unit of gate time.',
     numTargetQubits: 1,
     numControlQubits: [0, 0],
     parameters: [],
@@ -90,9 +92,9 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.RY]: {
     type: OperationType.RY,
     title: 'Rotation Y',
-    description: '',
+    description: 'On the Bloch sphere, this gate corresponds to rotating the qubit state around the y axis by the given angle and does not introduce complex amplitudes.',
     numTargetQubits: 1,
-    numControlQubits: [0, 2],
+    numControlQubits: [0, 1],
     parameters: [{
       name: 'lambda',
       default: 'pi/2'
@@ -100,7 +102,18 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
     color: 'rgb(239, 184, 230)',
     text: 'RY',
     relativeWidth: 1.0
-  }
+  },
+  [OperationType.SWAP]: {
+    type: OperationType.SWAP,
+    title: 'Swap',
+    description: 'The SWAP gate swaps the states of two qubits.',
+    numTargetQubits: 2,
+    numControlQubits: [0, 1],
+    parameters: [],
+    color: 'rgb(83, 139, 247)',
+    text: '',
+    relativeWidth: 1.0
+  },
 }
 
 export interface OperationData {
@@ -333,7 +346,6 @@ export class Operation {
    */
   private _notifyChange() {
     this._renderSvg();  // rerender on every change
-    console.log('change', this.id);
     this.change.next();
   }
 
@@ -397,46 +409,76 @@ export class Operation {
     const targetHeight = (lastTargetQubit-firstTargetQubit+1)*QUBIT_HEIGHT
     const targetFromTop = firstTargetQubit*QUBIT_HEIGHT;
 
-    // special treatment for not
-    if(this.type == OperationType.NOT) {
-      qoSvg.circle(operationWidth-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
-      qoSvg.text(t => {
-        t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - 0.08*QUBIT_HEIGHT);
-      }).font({
-        size: 0.8*QUBIT_HEIGHT,  // actual font size is 0.6*size, dont ask me why
-        leading: 1.0,
-        weight: 'lighter'
-      }).attr({
-        "dominant-baseline": "central",
-        "text-anchor": "middle"
-      });
-    }
-    else {
-      qoSvg.rect(operationWidth-(2*TARGET_PADDING), targetHeight-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
-      // add text for main block
-      const offsetForParameters = (this.parameterValues.length > 0) ? 0.8*FONT_SIZE_PARAMS : 0;
-      qoSvg.text(t => {
-        t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - offsetForParameters);
-      }).font({
-        size: FONT_SIZE/0.6,  // actual font size is 0.6*size, dont ask me why
-        leading: 1.0
-      }).attr({
-        "dominant-baseline": "central",
-        "text-anchor": "middle"
-      });
-      if(this.parameterValues.length > 0) {
-        const parameterStr = '(' + this.parameterValues.join(',') + ')'
+    switch (this.type) {
+      /** Special: NOT */
+      case OperationType.NOT:
+        qoSvg.circle(operationWidth-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
         qoSvg.text(t => {
-          t.tspan(parameterStr).dx("50%").y(targetFromTop + targetHeight/2 + 0.8*FONT_SIZE);
+          t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - 0.08*QUBIT_HEIGHT);
         }).font({
-          size: FONT_SIZE_PARAMS/0.6,
+          size: 0.8*QUBIT_HEIGHT,  // actual font size is 0.6*size, dont ask me why
+          leading: 1.0,
+          weight: 'lighter'
+        }).attr({
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        });
+        break;
+
+      /** Special: SWAP */
+      case OperationType.SWAP:
+        qoSvg.text(t => {
+          t.tspan('X').dx("50%").y(lastTargetQubit*QUBIT_HEIGHT + QUBIT_HEIGHT/2);
+        }).font({
+          size: 0.6*QUBIT_HEIGHT,
+          leading: 1.0
+        }).fill(this.properties.color).attr({
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        });
+        qoSvg.text(t => {
+          t.tspan('X').dx("50%").y(targetFromTop + QUBIT_HEIGHT/2);
+        }).font({
+          size: 0.6*QUBIT_HEIGHT,
+          leading: 1.0
+        }).fill(this.properties.color).attr({
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        });
+        qoSvg.line(operationWidth/2, targetFromTop/2 + QUBIT_HEIGHT/2, operationWidth/2, lastTargetQubit*QUBIT_HEIGHT + QUBIT_HEIGHT/2).stroke({
+          width: CONNECTION_WIDTH,
+          color: this.properties.color
+        });
+        break;
+
+      /** Else: standard */
+      default:
+        qoSvg.rect(operationWidth-(2*TARGET_PADDING), targetHeight-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
+        const offsetForParameters = (this.parameterValues.length > 0) ? 0.8*FONT_SIZE_PARAMS : 0;
+        qoSvg.text(t => {
+          t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - offsetForParameters);
+        }).font({
+          size: FONT_SIZE/0.6,  // actual font size is 0.6*size, dont ask me why
           leading: 1.0
         }).attr({
           "dominant-baseline": "central",
           "text-anchor": "middle"
         });
-      }
+        if(this.parameterValues.length > 0) {
+          const parameterStr = '(' + this.parameterValues.join(',') + ')'
+          qoSvg.text(t => {
+            t.tspan(parameterStr).dx("50%").y(targetFromTop + targetHeight/2 + 0.8*FONT_SIZE);
+          }).font({
+            size: FONT_SIZE_PARAMS/0.6,
+            leading: 1.0
+          }).attr({
+            "dominant-baseline": "central",
+            "text-anchor": "middle"
+          });
+        }
+        break;
     }
+
     // save svg
     this._svg = qoSvg;
   }

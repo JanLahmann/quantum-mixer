@@ -1,17 +1,10 @@
 import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { Composer } from '../composer';
-import { ComposerCatalogueType, createOperations } from '../composer-catalogue';
-import { CircuitData } from '../circuit';
+import { createOperations } from '../../model/composer-catalogue';
 import { Unsubscribable } from 'rxjs';
-import { Operation } from '../operation';
-
-export interface ComposerDragData {
-  type: 'qo-move' | 'qo-add',
-  catalogueType?: ComposerCatalogueType,
-  operationId?: string,
-  dragOffset: number,
-  qubitsCovered: number
-}
+import { Operation, OperationProperties, OperationType } from '../../model/operation';
+import { EditorService } from '../../editor.service';
+import { cssRelValue } from '../../../common/utils';
+import { ComposerDragData, ComposerSlotViewData, ComposerViewData } from '../../model/composer';
 
 @Component({
   selector: 'app-composer-main',
@@ -20,88 +13,82 @@ export interface ComposerDragData {
 })
 export class ComposerMainComponent implements OnInit, OnDestroy {
 
+  constructor(public editorService: EditorService) {
 
-  @ViewChild('operationsContainer') operationsContainer: ElementRef<HTMLDivElement> | undefined;
-  public composer = new Composer();
-
-  /** Supported Qubit Operation Types */
-  public ComposerCatalogueType = ComposerCatalogueType;
-
-  /** if true, enable drop zones and listen for drops */
-  public isDragging: boolean = false;
-  /** show info field to the right */
-  public hasInfo: boolean = false;
-  /** active operation */
-  public activeOperation: Operation | null = null;
-
-  @Output('change') change: EventEmitter<CircuitData> = new EventEmitter();
-  private _changeSub: Unsubscribable | null = null;
-
-  ngOnInit() {
-    this._changeSub = this.composer.change.subscribe(_ => {
-      this.change.emit(this.composer.export());
-    })
   }
 
   /**
-   * Load circuit data
-   * @param data
+   * If set, show information and settings for this operation
    */
-  loadCircuit(data: CircuitData) {
-    return this.composer.load(data);
+  public activeOperation: Operation | null = null;
+
+  /**
+   * Show additional panel
+   */
+  public showPanel: boolean = false;
+
+  /**
+   * View data
+   */
+  public viewData: ComposerViewData | null = null;
+
+  /**
+   * Subscription for circuit changes
+   */
+  private _changeSub: Unsubscribable | null = null;
+
+  ngOnInit() {
+    this._changeSub = this.editorService.circuit.change.subscribe(_ => {
+      this._buildViewData();
+    })
+
+    const newOp = new Operation(OperationProperties[OperationType.SWAP]);
+    this.editorService.circuit.addOperations([newOp], 1, 0);
+  }
+
+  /**
+   * Rebuild view data
+   */
+  private _buildViewData() {
+
+    // init data structure
+    const newViewData: ComposerViewData = {
+      relativeWidth: 0,
+      slots: []
+    }
+    // get number of slots
+    const slots = this.editorService.circuit.operations.length > 0 ? Math.max(...this.editorService.circuit.operations.map(op => op.slot)) : 0;
+    // loop slots
+    for(let slot = 0; slot <= slots; slot++) {
+      const slotOperations = this.editorService.circuit.getOperationsForSlot(slot);
+      const slotViewData: ComposerSlotViewData = {
+        relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.relativeWidth)) : 0,
+        operations: this.editorService.circuit.getOperationsForSlot(slot).map(op => {
+          const opSvg = op.svg?.svg();
+          return {
+            operationId: op.id,
+            operationSvg: opSvg,
+            firstQubit: op.getFirstQubit(),
+            numQubitsCovered: op.getNumQubitsCovered(),
+            relativeWidth: op.relativeWidth
+          }
+        })
+      }
+      newViewData.slots.push(slotViewData);
+    }
+
+    newViewData.relativeWidth = newViewData.slots.map(s => s.relativeWidth).reduce((ps, s) => ps + s, 0);
+    this.viewData = newViewData;
   }
 
   /**
    * Reset all internal values for drag and drop functionality
    */
   resetDragDrop() {
-    this.isDragging = false;
-    this.hasInfo = false;
+    this.editorService.isDragging = false;
+    this.showPanel = false;
     this.currentDragZoneOver = -1;
     document.querySelectorAll('.dragging-operation').forEach(el => el.classList.remove('dragging-operation'));
-  }
-
-  /**
-   * Start dragging of buttons/icons to add new operations to the composer.
-   * @param ev
-   * @param catalogueType
-   */
-  handleNewOperationDragStart(ev: DragEvent, catalogueType: ComposerCatalogueType) {
-
-    // init drag
-    this.isDragging = true;
-    this.hasInfo = false;
-    this.activeOperation = null;
-
-    // create new operation
-    const newOperation = createOperations(catalogueType)[0];
-    newOperation.whiteBackground = true;
-
-    if(ev.dataTransfer) {
-
-      // Clear the drag data cache (for all formats/types)
-      ev.dataTransfer.clearData();
-      ev.dataTransfer.effectAllowed = 'move';
-      // create preview
-      // The element needs to be visible, so we will add it to the view for 100ms
-      const element = document.getElementById('composer-newoperation-render');
-      element!.style.width = this.cssRelValue(newOperation.properties.relativeWidth);
-      element!.style.height = this.cssRelValue(newOperation.getNumQubitsCovered());
-      element?.classList.add('active');
-      element!.innerHTML = newOperation.svg!.svg();
-      ev.dataTransfer.setDragImage(element!, 0, 0);
-      setTimeout(() => {
-        element?.classList.remove('active');
-      }, 100)
-
-      // Set drag data
-      ev.dataTransfer.setData('qo-json', JSON.stringify(<ComposerDragData>{
-        type: 'qo-add',
-        catalogueType: catalogueType,
-        dragOffset: 0,
-        qubitsCovered: newOperation.getNumQubitsCovered()
-      }));
-    }
   }
 
   /**
@@ -116,16 +103,17 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
     const qubitDragOffset = (layerY && isFinite(qubitHeight)) ? Math.floor(layerY/qubitHeight) : 0;
     // mark item as being dragged
     (<HTMLDivElement>ev.target).classList.add('dragging-operation');
-    this.activeOperation = null;
-    this.isDragging = true;
-    this.hasInfo = true; // required to enable delete button
+    this.editorService.isDragging = true;
+
+    this.activeOperation = null; // set to null, will show delete instead
+    this.showPanel = true; // required to enable delete button
 
     if(ev.dataTransfer) {
       // Clear the drag data cache (for all formats/types)
       ev.dataTransfer.clearData();
       ev.dataTransfer.effectAllowed = 'move';
       ev.dataTransfer.setDragImage(<any>ev.target, isFinite(qubitHeight) ? qubitHeight/2 : 0, (<any>ev).layerY || 0);
-      const operation = this.composer.getOperationById(opId)!;
+      const operation = this.editorService.circuit.getOperationById(opId)!;
       // Set drag data: id
       ev.dataTransfer.setData('qo-json', JSON.stringify(<ComposerDragData>{
         type: 'qo-move',
@@ -161,7 +149,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
     if(qubitIdx === undefined || qubitsCovered === undefined) {
       return false;
     }
-    return qubitIdx >= 0 && (qubitIdx + qubitsCovered <= this.composer.numQubits);
+    return qubitIdx >= 0 && (qubitIdx + qubitsCovered <= this.editorService.circuit.numQubits);
   }
 
   /** While dragging, save the current slot the user is dragging over */
@@ -213,15 +201,15 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
       if(!this._isDropAllowed(qubitIdx - evData.dragOffset, evData.qubitsCovered)) {
         return;
       }
-      const operation = this.composer.getOperationById(evData.operationId!)!;
-      this.composer.removeOperation(evData.operationId!);
-      this.composer.addOperations([operation], qubitIdx - evData.dragOffset, slot);
+      const operation = this.editorService.circuit.getOperationById(evData.operationId!)!;
+      this.editorService.circuit.removeOperation(evData.operationId!);
+      this.editorService.circuit.addOperations([operation], qubitIdx - evData.dragOffset, slot);
     }
 
     // if adding operation
     if(evData.type == 'qo-add' && evData.catalogueType) {
       const newOperations = createOperations(evData.catalogueType)
-      this.composer.addOperations(newOperations, qubitIdx, slot);
+      this.editorService.circuit.addOperations(newOperations, qubitIdx, slot);
     }
   }
 
@@ -239,7 +227,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
       return;
     }
     // delete operation
-    this.composer.removeOperation(evData.operationId);
+    this.editorService.circuit.removeOperation(evData.operationId);
   }
 
   /**
@@ -250,26 +238,14 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Get a CSS value relative to CSS variable `--qo-qubit-height`
-   * @param value
-   * @returns
-   */
-  public cssRelValue(value?: number): string {
-    if(!value) {
-      return '0';
-    }
-    return `calc(${value} * var(--qo-qubit-height))`;
-  }
-
-  /**
    * Set active operation by id
    * @param opId
    */
   public setActiveOperation(opId: string) {
-    const operation = this.composer.getOperationById(opId);
+    const operation = this.editorService.circuit.getOperationById(opId);
     if(operation) {
-      this.hasInfo = true;
       this.activeOperation = operation;
+      this.showPanel = true;
     }
   }
 
@@ -278,5 +254,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
       this._changeSub.unsubscribe();
     }
   }
+
+  cssRelValue = cssRelValue
 
 }

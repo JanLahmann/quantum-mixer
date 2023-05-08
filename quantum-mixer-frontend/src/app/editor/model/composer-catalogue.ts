@@ -7,7 +7,8 @@ export enum ComposerCatalogueType {
   CCNOT    = 'ccnot',
   IDENTITY = 'identity',
   Z        = 'z',
-  RY       = 'ry'
+  RY       = 'ry',
+  SWAP     = 'swap'
 }
 
 export interface ComposerCatalogueItem {
@@ -19,8 +20,17 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
     operations: [
       {
         type: OperationType.HADAMARD,
-        id: '<tbd>',
         targetQubits: [0],
+        controlQubits: [],
+        parameterValues: []
+      }
+    ]
+  },
+  [ComposerCatalogueType.SWAP]: {
+    operations: [
+      {
+        type: OperationType.SWAP,
+        targetQubits: [0, 1],
         controlQubits: [],
         parameterValues: []
       }
@@ -30,7 +40,6 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
     operations: [
       {
         type: OperationType.NOT,
-        id: '<tbd>',
         targetQubits: [0],
         controlQubits: [],
         parameterValues: []
@@ -41,7 +50,6 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
     operations: [
       {
         type: OperationType.NOT,
-        id: '<tbd>',
         targetQubits: [1],
         controlQubits: [0],
         parameterValues: []
@@ -52,7 +60,6 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
     operations: [
       {
         type: OperationType.NOT,
-        id: '<tbd>',
         targetQubits: [2],
         controlQubits: [0, 1],
         parameterValues: []
@@ -63,7 +70,6 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
     operations: [
       {
         type: OperationType.IDENTITY,
-        id: '<tbd>',
         targetQubits: [0],
         controlQubits: [],
         parameterValues: []
@@ -74,7 +80,6 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
     operations: [
       {
         type: OperationType.Z,
-        id: '<tbd>',
         targetQubits: [0],
         controlQubits: [],
         parameterValues: []
@@ -85,7 +90,6 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
     operations: [
       {
         type: OperationType.RY,
-        id: '<tbd>',
         targetQubits: [0],
         controlQubits: [],
         parameterValues: ['pi/2']

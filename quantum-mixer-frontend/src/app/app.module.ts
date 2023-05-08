@@ -5,11 +5,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SanitizeHtmlPipe } from './common/sanitize-html.pipe';
 import { AsRangePipe } from './common/as-range.pipe';
-import { ComposerMainComponent } from './composer/composer-main/composer-main.component';
+import { ComposerMainComponent } from './editor/composer/composer-main/composer-main.component';
 import { NgChartsModule } from 'ng2-charts';
-import { ProbabilitiesChartComponent } from './probabilities-chart/probabilities-chart.component';
-import { PageEditorComponent } from './page-editor/page-editor.component';
-import { ComposerOperationInfoComponent } from './composer/composer-operation-info/composer-operation-info.component';
+import { ProbabilitiesChartComponent } from './editor/probabilities-chart/probabilities-chart.component';
+import { PageEditorComponent } from './editor/page-editor/page-editor.component';
+import { ComposerOperationInfoComponent } from './editor/composer/composer-operation-info/composer-operation-info.component';
+import { ComposerOperationCatalogueComponent } from './editor/composer/composer-operation-catalogue/composer-operation-catalogue.component';
+import { MeasurementComponent } from './editor/measurement/measurement.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +22,8 @@ import { ComposerOperationInfoComponent } from './composer/composer-operation-in
     ProbabilitiesChartComponent,
     PageEditorComponent,
     ComposerOperationInfoComponent,
+    ComposerOperationCatalogueComponent,
+    MeasurementComponent,
   ],
   imports: [
     BrowserModule,

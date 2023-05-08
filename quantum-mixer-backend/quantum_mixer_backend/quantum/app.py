@@ -38,9 +38,9 @@ async def get_measurements(circuit_data: CircuitData, num_shots: int = 1):
     # get results
     results = []
     for _ in range(num_shots):
-        result_analytical = executor.probabilities_qasm(num_shots=1)
-        result_analytical_bits = max(result_analytical, key=result_analytical.key)
-        results.push(result_analytical_bits)
+        result_qasm = executor.probabilities_qasm(num_shots=1)
+        result_qasm_bits = max(result_qasm, key=result_qasm.get)
+        results.append(result_qasm_bits)
     
     # return data
     return {

@@ -1,5 +1,5 @@
 $qubit-name-width: 50px;
-$qubit-info-width: 33%;
+$qubit-panel-width: 33%;
 
 #composer-main {
   position: relative;
@@ -67,6 +67,12 @@ $qubit-info-width: 33%;
     left: 50%;
     display: block;
     cursor: pointer;
+
+    &.active {
+      border-style: solid;
+      border-color: lightblue;
+      border-width: 1px;
+    }
   }
 
   .qubit-operations-drop-zone {
@@ -91,13 +97,14 @@ $qubit-info-width: 33%;
   }
 }
 
-#composer-detail-container {
+#composer-panel-container {
   position: absolute;
   right: 0;
   top: 0;
   bottom: 0;
   width: 0;
   background-color: lightgray;
+  overflow: hidden;
 
   span {
     position: relative;
@@ -110,30 +117,12 @@ $qubit-info-width: 33%;
   }
 }
 
-#composer-main.has-info {
+#composer-main.show-panel {
 
   #composer-operations-container-outer {
-    right: $qubit-info-width;
+    right: $qubit-panel-width;
   }
-  #composer-detail-container {
-    width: $qubit-info-width;
-  }
-}
-
-#composer-newoperations-container {
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  gap: 15px;
-  margin-bottom: 30px;
-
-  .composer-newoperation {
-    flex: 0 0 50px;
-    height: 50px;
-    display: block;
-    line-height: 50px;
-    text-align: center;
-    background-color: lightblue;
-    cursor: pointer;
+  #composer-panel-container {
+    width: $qubit-panel-width;
   }
 }

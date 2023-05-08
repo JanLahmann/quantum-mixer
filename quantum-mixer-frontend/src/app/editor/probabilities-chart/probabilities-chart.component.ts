@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { ApiProbabilitiesResponse } from '../api';
+import { Unsubscribable } from 'rxjs';
+import { EditorService } from '../editor.service';
 
 const RESULT_NAMES: {[key: string]: string} = {
   analytical: 'Analytical',
@@ -14,26 +15,30 @@ const RESULT_NAMES: {[key: string]: string} = {
   templateUrl: './probabilities-chart.component.html',
   styleUrls: ['./probabilities-chart.component.scss']
 })
-export class ProbabilitiesChartComponent implements OnInit {
+export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
 
   public showLegend = true;
   public plugins = [ChartDataLabels];
+  private _changeSub: Unsubscribable | null = null;
+
+  constructor(public editorService: EditorService) {
+
+  }
 
   ngOnInit() {
     Chart.register(ChartDataLabels);
-  }
-
-  public update(res: ApiProbabilitiesResponse) {
-    this.data = {
-      labels: res.bits,
-      datasets: Object.keys(res.results).map(key => {
-        const data = res.results[<'analytical'|'qasm'|'mock'>key];
-        return {
-          label: RESULT_NAMES[key],
-          data: data
-        }
-      })
-    }
+    this._changeSub = this.editorService.probabilities.subscribe(res => {
+      this.data = {
+        labels: res.bits,
+        datasets: Object.keys(res.results).map(key => {
+          const data = res.results[<'analytical'|'qasm'|'mock'>key];
+          return {
+            label: RESULT_NAMES[key],
+            data: data
+          }
+        })
+      }
+    })
   }
 
   public data: ChartConfiguration<'bar'>['data'] = {
@@ -75,5 +80,11 @@ export class ProbabilitiesChartComponent implements OnInit {
         }
       }
     }
-  };
+  }
+
+  ngOnDestroy(): void {
+      if(this._changeSub) {
+        this._changeSub.unsubscribe();
+      }
+  }
 }

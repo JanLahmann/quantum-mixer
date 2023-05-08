@@ -1,0 +1,69 @@
+<div
+  id="composer-main"
+  [ngClass]="{
+    'is-dragging': editorService.isDragging,
+    'show-panel': showPanel
+  }"
+  >
+  <div *ngFor="let qIdx of editorService.circuit.numQubits | asRange" class="composer-qubit-container">
+    <span class="composer-qubit-name">q{{qIdx}}</span>
+    <div class="composer-qubit-line"></div>
+  </div>
+  <div id="composer-operations-container-outer">
+    <div #operationsContainer id="composer-operations-container" [ngStyle]="{'min-width': cssRelValue((viewData?.relativeWidth || 0) + 3)}">
+      <div
+        *ngFor="let slot of viewData?.slots; let slotIdx = index"
+        class="composer-operations-slot"
+        [ngClass]="{'drag-active': slotIdx == currentDragZoneOver}"
+        [ngStyle]="{
+          'flex-basis': cssRelValue(slot.relativeWidth)
+        }">
+        <div
+          *ngFor="let op of slot.operations"
+          [id]="'op-'+op.operationId"
+          class="composer-operations-operation"
+          [ngClass]="{'active': op.operationId == activeOperation?.id}"
+          [ngStyle]="{
+            'top': cssRelValue(op.firstQubit),
+            'height': cssRelValue(op.numQubitsCovered),
+            'width': cssRelValue(op.relativeWidth),
+            'margin-left': cssRelValue(-op.relativeWidth/2)
+          }"
+          [innerHTML]="op.operationSvg | sanitizeHtml"
+          draggable="true"
+          (dragstart)="handleOperationDragStart($event, op.operationId)"
+          (dragend)="handleDragEnd()"
+          (click)="setActiveOperation(op.operationId)"
+          >
+        </div>
+        <div
+          *ngFor="let qIdx of editorService.circuit.numQubits | asRange"
+          class="qubit-operations-drop-zone"
+          [ngStyle]="{'top': cssRelValue(qIdx)}"
+          (dragover)="handleDropzoneDragOver($event, qIdx, slotIdx)"
+          (drop)="handleDropzoneDrop($event, qIdx, slotIdx)"
+          >
+        </div>
+      </div>
+      <div id="composer-newoperation-render" class="composer-operations-slot"></div>
+      <div class="composer-operations-slot" [ngClass]="{'drag-active': currentDragZoneOver == -2}">
+        <div
+          *ngFor="let qIdx of editorService.circuit.numQubits | asRange"
+          class="qubit-operations-drop-zone"
+          [ngStyle]="{'top': cssRelValue(qIdx), 'flex-basis': cssRelValue(3)}"
+          (dragover)="handleDropzoneDragOver($event, qIdx, -2)"
+          (drop)="handleDropzoneDrop($event, qIdx, -1)"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="composer-panel-container" (dragover)="handleRemoveZoneDragOver($event)" (drop)="handleRemoveZoneDrop($event)">
+    <app-composer-operation-info *ngIf="activeOperation" [operation]="activeOperation" [numQubits]="editorService.circuit.numQubits"></app-composer-operation-info>
+    <span *ngIf="editorService.isDragging && !activeOperation">Remove</span>
+  </div>
+</div>
+
+<pre>
+{{ (editorService.probabilities | async)?.circuit_drawing }}
+</pre>

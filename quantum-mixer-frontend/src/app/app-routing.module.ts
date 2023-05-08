@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PageEditorComponent } from './page-editor/page-editor.component';
+import { PageEditorComponent } from './editor/page-editor/page-editor.component';
 
 const routes: Routes = [
   {

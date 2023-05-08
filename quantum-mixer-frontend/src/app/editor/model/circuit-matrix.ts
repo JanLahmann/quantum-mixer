@@ -17,7 +17,7 @@
  * x|-H-
  * -x---
  */
-export class ComposerMatrix {
+export class CircuitMatrix {
 
   /** 2d matrix of occupied qubits, first qubit index, second is slot */
   private _occupied: {[qubitIdx: number]: number[]} = {};

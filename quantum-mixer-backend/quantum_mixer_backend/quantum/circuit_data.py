@@ -8,13 +8,14 @@ class OperationTypeEnum(str, Enum):
     Z        = 'z'
     RY       = 'ry'
     IDENTITY = 'i'
+    SWAP     = 'swap'
 
 class OperationData(BaseModel):
     id: Annotated[str, "Unique id of operation"]
     type: Annotated[OperationTypeEnum, "Base type of an operation (without controls)"]
     targetQubits: Annotated[list[int], "Indices of target qubits"]
     controlQubits: Annotated[list[int], "Indices of control qubits"]
-    parameterValues: Annotated[list[float], "Parameters for gate"]
+    parameterValues: Annotated[list[str], "Parameters for gate"]
 
 class CircuitData(BaseModel):
     numQubits: Annotated[int, "number of qubits"]

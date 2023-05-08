@@ -1,38 +1,26 @@
+import { OperationData, Operation } from "./operation";
 import { ReplaySubject, Unsubscribable } from "rxjs";
-import { CircuitData } from "./circuit";
-import { ComposerMatrix } from './composer-matrix';
-import { Operation, OperationData } from "./operation";
+import { CircuitMatrix } from './circuit-matrix';
+
 
 /**
- * View data for a single slot in composer
+ * Data for building circuit
  */
-export interface ComposerSlotViewData {
-  relativeWidth: number,
-  operations: {
-    operationSvg?:    string,
-    operationId:      string,
-    firstQubit:       number,
-    numQubitsCovered: number,
-    relativeWidth:    number
-  }[]
+export interface CircuitData {
+  /** number of qubits */
+  numQubits: number,
+  /** list of operations */
+  operations: OperationData[]
 }
 
-/**
- * View data for all slots in composer
- */
-export interface ComposerViewData {
-  relativeWidth: number,
-  slots: ComposerSlotViewData[]
-}
-
-export class Composer {
+export class Circuit {
 
   /** Subject to get notified on changes */
   public readonly change: ReplaySubject<void> = new ReplaySubject();
 
-  /** Number of qubits in composer */
+  /** Number of qubits in circuit */
   private _numQubits: number = 3;
-  /** Number of qubits in composer */
+  /** Number of qubits in circuit */
   get numQubits(): number {
     return this._numQubits;
   }
@@ -44,6 +32,10 @@ export class Composer {
 
   /** Array of all operations */
   private _operations: {slot: number, operation: Operation}[] = [];
+  /** Array of all operations */
+  get operations(): {slot: number, operation: Operation}[] {
+    return this._operations;
+  }
 
   /** Map to manage subscriptions to change events of operations */
   private _subs: {[opId: string]: Unsubscribable} = {};
@@ -63,10 +55,10 @@ export class Composer {
         this._notifyChange();
       })
       // before pushing to internal, we get index of first element with slot == beforeSlot
-      let idx = this._operations.map(item => item.slot).indexOf(beforeSlot);
-      idx = (idx == -1) ? this._operations.length : idx;
+      let idx = this.operations.map(item => item.slot).indexOf(beforeSlot);
+      idx = (idx == -1) ? this.operations.length : idx;
       // now insert element _before_ the found index
-      this._operations.splice(idx, 0, {
+      this.operations.splice(idx, 0, {
         operation: op,
         slot: 0
       });
@@ -81,7 +73,7 @@ export class Composer {
    */
   public removeOperation(opId: string) {
     // remove from internal
-    this._operations = this._operations.filter(op => op.operation.id !== opId);
+    this._operations = this.operations.filter(op => op.operation.id !== opId);
     // unsubscribe from change
     this._subs[opId]?.unsubscribe();
     // publish
@@ -93,10 +85,10 @@ export class Composer {
    */
   private _updateSlots() {
     // init
-    const slotMatrix = new ComposerMatrix();
+    const slotMatrix = new CircuitMatrix();
 
     // loop through operations
-    this._operations.forEach(opO => {
+    this.operations.forEach(opO => {
       const occupiedQubits = opO.operation.getQubits();
       const slot = slotMatrix.getBestSlot(occupiedQubits);
       opO.slot = slot;
@@ -112,7 +104,7 @@ export class Composer {
    * @param slot
    */
   public getOperationsForSlot(slot: number) {
-    return this._operations.filter(op => op.slot == slot).map(item => item.operation).sort((op1, op2) => op1.getFirstQubit() - op2.getFirstQubit())
+    return this.operations.filter(op => op.slot == slot).map(item => item.operation).sort((op1, op2) => op1.getFirstQubit() - op2.getFirstQubit())
   }
 
   /**
@@ -121,7 +113,7 @@ export class Composer {
    * @returns
    */
   public getOperationById(id: string): Operation | null {
-    const items = this._operations.filter(op => op.operation.id == id);
+    const items = this.operations.filter(op => op.operation.id == id);
     if(items.length == 0) {
       return null;
     } else {
@@ -134,51 +126,7 @@ export class Composer {
    */
   private _notifyChange() {
     this._updateSlots();
-    this._buildViewData();
     this.change.next();
-  }
-
-  private _viewData: ComposerViewData | null = null;
-  /**
-   * View Data for Composer
-   */
-  get viewData(): ComposerViewData | null {
-    return this._viewData;
-  }
-
-  /**
-   * Rebuild view data
-   */
-  private _buildViewData() {
-
-    // init data structure
-    const newViewData: ComposerViewData = {
-      relativeWidth: 0,
-      slots: []
-    }
-    // get number of slots
-    const slots = this._operations.length > 0 ? Math.max(...this._operations.map(op => op.slot)) : 0;
-    // loop slots
-    for(let slot = 0; slot <= slots; slot++) {
-      const slotOperations = this.getOperationsForSlot(slot);
-      const slotViewData: ComposerSlotViewData = {
-        relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.relativeWidth)) : 0,
-        operations: this.getOperationsForSlot(slot).map(op => {
-          const opSvg    = op.svg?.svg();
-          return {
-            operationId: op.id,
-            operationSvg: opSvg,
-            firstQubit: op.getFirstQubit(),
-            numQubitsCovered: op.getNumQubitsCovered(),
-            relativeWidth: op.relativeWidth
-          }
-        })
-      }
-      newViewData.slots.push(slotViewData);
-    }
-
-    newViewData.relativeWidth = newViewData.slots.map(s => s.relativeWidth).reduce((ps, s) => ps + s, 0);
-    this._viewData = newViewData;
   }
 
   /**
@@ -188,7 +136,7 @@ export class Composer {
   public export(): CircuitData {
     return {
       numQubits: this._numQubits,
-      operations: this._operations.map(op => op.operation.export())
+      operations: this.operations.map(op => op.operation.export())
     }
   }
 
@@ -212,7 +160,7 @@ export class Composer {
     });
 
     // subscribe to changes
-    this._operations.map(operation => {
+    this.operations.map(operation => {
       this._subs[operation.operation.id] = operation.operation.change.subscribe(_ => {
         this._notifyChange();
       })
@@ -222,3 +170,4 @@ export class Composer {
   }
 
 }
+
