@@ -1,7 +1,7 @@
 import { ReplaySubject, Unsubscribable } from "rxjs";
-import { ComposerOperation } from "./composer-operation";
 import { CircuitData } from "./circuit";
 import { ComposerMatrix } from './composer-matrix';
+import { Operation, OperationData } from "./operation";
 
 /**
  * View data for a single slot in composer
@@ -43,7 +43,7 @@ export class Composer {
   }
 
   /** Array of all operations */
-  private _operations: {slot: number, operation: ComposerOperation}[] = [];
+  private _operations: {slot: number, operation: Operation}[] = [];
 
   /** Map to manage subscriptions to change events of operations */
   private _subs: {[opId: string]: Unsubscribable} = {};
@@ -54,20 +54,22 @@ export class Composer {
    * @param qubitIdx - Initialize operation on qubitIdx
    * @param beforeSlot - inject operation at specific horizontal order
    */
-  public addOperation(op: ComposerOperation, qubit: number, beforeSlot: number = -1) {
+  public addOperations(ops: Operation[], firstQubit: number, beforeSlot: number = -1) {
     // initialize op
-    op.init(qubit);
-    // subscribe to changs
-    this._subs[op.id] = op.change.subscribe(() => {
-      this._notifyChange();
-    })
-    // before pushing to internal, we get index of first element with slot == beforeSlot
-    let idx = this._operations.map(item => item.slot).indexOf(beforeSlot);
-    idx = (idx == -1) ? this._operations.length : idx;
-    // now insert element _before_ the found index
-    this._operations.splice(idx, 0, {
-      operation: op,
-      slot: 0
+    ops.map(op => {
+      op.shift(firstQubit - op.getFirstQubit());
+      // subscribe to changs
+      this._subs[op.id] = op.change.subscribe(() => {
+        this._notifyChange();
+      })
+      // before pushing to internal, we get index of first element with slot == beforeSlot
+      let idx = this._operations.map(item => item.slot).indexOf(beforeSlot);
+      idx = (idx == -1) ? this._operations.length : idx;
+      // now insert element _before_ the found index
+      this._operations.splice(idx, 0, {
+        operation: op,
+        slot: 0
+      });
     });
     // publish
     this._notifyChange();
@@ -118,7 +120,7 @@ export class Composer {
    * @param id - id to search
    * @returns
    */
-  public getOperationById(id: string): ComposerOperation | null {
+  public getOperationById(id: string): Operation | null {
     const items = this._operations.filter(op => op.operation.id == id);
     if(items.length == 0) {
       return null;
@@ -160,7 +162,7 @@ export class Composer {
     for(let slot = 0; slot <= slots; slot++) {
       const slotOperations = this.getOperationsForSlot(slot);
       const slotViewData: ComposerSlotViewData = {
-        relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.options.relativeWidth)) : 0,
+        relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.properties.relativeWidth)) : 0,
         operations: this.getOperationsForSlot(slot).map(op => {
           const opSvg    = op.svg?.svg();
           return {
@@ -168,7 +170,7 @@ export class Composer {
             operationSvg: opSvg,
             firstQubit: op.getFirstQubit(),
             numQubitsCovered: op.getNumQubitsCovered(),
-            relativeWidth: op.options.relativeWidth
+            relativeWidth: op.properties.relativeWidth
           }
         })
       }
@@ -188,6 +190,35 @@ export class Composer {
       numQubits: this._numQubits,
       operations: this._operations.map(op => op.operation.export())
     }
+  }
+
+  /**
+   * Load circuit data
+   * @param data
+   */
+  public load(data: CircuitData) {
+    // reset
+    this._operations = [];
+    Object.values(this._subs).map(sub => sub.unsubscribe());
+    this._subs = {};
+    this._numQubits = data.numQubits;
+
+    // load operations
+    this._operations = data.operations.map((operationData, idx) => {
+      return {
+        slot: idx,
+        operation: Operation.fromData(operationData)
+      }
+    });
+
+    // subscribe to changes
+    this._operations.map(operation => {
+      this._subs[operation.operation.id] = operation.operation.change.subscribe(_ => {
+        this._notifyChange();
+      })
+    })
+
+    this._notifyChange();
   }
 
 }

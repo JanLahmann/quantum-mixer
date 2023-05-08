@@ -1,6 +1,8 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { Composer } from '../composer';
-import { ComposerCatalogueType, createOperation } from '../composer-catalogue';
+import { ComposerCatalogueType, createOperations } from '../composer-catalogue';
+import { CircuitData } from '../circuit';
+import { Unsubscribable } from 'rxjs';
 
 export interface ComposerDragData {
   type: 'qo-move' | 'qo-add',
@@ -15,7 +17,7 @@ export interface ComposerDragData {
   templateUrl: './composer-main.component.html',
   styleUrls: ['./composer-main.component.scss']
 })
-export class ComposerMainComponent implements OnInit {
+export class ComposerMainComponent implements OnInit, OnDestroy {
 
 
   @ViewChild('operationsContainer') operationsContainer: ElementRef<HTMLDivElement> | undefined;
@@ -29,33 +31,21 @@ export class ComposerMainComponent implements OnInit {
   /** show info field to the right */
   public hasInfo: boolean = false;
 
+  @Output('change') change: EventEmitter<CircuitData> = new EventEmitter();
+  private _changeSub: Unsubscribable | null = null;
+
   ngOnInit() {
-    const cnot1 = createOperation(ComposerCatalogueType.CNOT);
-    const cnot2 = createOperation(ComposerCatalogueType.CNOT);
-    const h1 = createOperation(ComposerCatalogueType.HADAMARD);
-
-    this.composer.addOperation(cnot1, 0);
-    this.composer.addOperation(h1, 1);
-    this.composer.addOperation(cnot2, 0);
-
-    setTimeout(() => {
-      this.fetchData()
-    }, 1000);
+    this._changeSub = this.composer.change.subscribe(_ => {
+      this.change.emit(this.composer.export());
+    })
   }
 
-  fetchData() {
-    const data = this.composer.export();
-    fetch('/api/probabilities', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    }).then(res => {
-      res.json().then(myData => {
-        console.log(myData.circuit_drawing);
-      })
-    })
+  /**
+   * Load circuit data
+   * @param data
+   */
+  loadCircuit(data: CircuitData) {
+    return this.composer.load(data);
   }
 
   /**
@@ -80,7 +70,7 @@ export class ComposerMainComponent implements OnInit {
     this.hasInfo = false;
 
     // create new operation
-    const newOperation = createOperation(catalogueType);
+    const newOperation = createOperations(catalogueType)[0];
     newOperation.whiteBackground = true;
 
     if(ev.dataTransfer) {
@@ -91,7 +81,7 @@ export class ComposerMainComponent implements OnInit {
       // create preview
       // The element needs to be visible, so we will add it to the view for 100ms
       const element = document.getElementById('composer-newoperation-render');
-      element!.style.width = this.cssRelValue(newOperation.options.relativeWidth);
+      element!.style.width = this.cssRelValue(newOperation.properties.relativeWidth);
       element!.style.height = this.cssRelValue(newOperation.getNumQubitsCovered());
       element?.classList.add('active');
       element!.innerHTML = newOperation.svg!.svg();
@@ -220,13 +210,13 @@ export class ComposerMainComponent implements OnInit {
       }
       const operation = this.composer.getOperationById(evData.operationId!)!;
       this.composer.removeOperation(evData.operationId!);
-      this.composer.addOperation(operation, qubitIdx - evData.dragOffset, slot);
+      this.composer.addOperations([operation], qubitIdx - evData.dragOffset, slot);
     }
 
     // if adding operation
     if(evData.type == 'qo-add' && evData.catalogueType) {
-      const newOperation = createOperation(evData.catalogueType)
-      this.composer.addOperation(newOperation, qubitIdx, slot);
+      const newOperations = createOperations(evData.catalogueType)
+      this.composer.addOperations(newOperations, qubitIdx, slot);
     }
   }
 
@@ -237,6 +227,7 @@ export class ComposerMainComponent implements OnInit {
    */
   handleRemoveZoneDrop(ev: DragEvent) {
     ev.preventDefault();
+    this.resetDragDrop();
     // get data from drop
     const evData = this._getDragData(ev);
     if(!evData || !evData.operationId) {
@@ -263,6 +254,12 @@ export class ComposerMainComponent implements OnInit {
       return '0';
     }
     return `calc(${value} * var(--qo-qubit-height))`;
+  }
+
+  ngOnDestroy() {
+    if(this._changeSub) {
+      this._changeSub.unsubscribe();
+    }
   }
 
 }

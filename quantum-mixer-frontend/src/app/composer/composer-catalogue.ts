@@ -1,5 +1,4 @@
-import { ComposerOperation, ComposerOperationOptions } from "./composer-operation"
-import { OperationType } from "./operation"
+import { OperationData, OperationType, Operation } from "./operation"
 
 export enum ComposerCatalogueType {
   HADAMARD = 'hadamard',
@@ -11,80 +10,93 @@ export enum ComposerCatalogueType {
   RY       = 'ry'
 }
 
-export const ComposerCatalogue: {[key: string]: ComposerOperationOptions} = {
+export interface ComposerCatalogueItem {
+  operations: OperationData[]
+}
+
+export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalogueItem} = {
   [ComposerCatalogueType.HADAMARD]: {
-    type: OperationType.HADAMARD,
-    text: 'H',
-    color: 'orange',
-    numTargetQubits: 1,
-    numControlQubits: [0, 1, 0],
-    relativeWidth: 1.0,
-    parameters: []
+    operations: [
+      {
+        type: OperationType.HADAMARD,
+        id: '<tbd>',
+        targetQubits: [0],
+        controlQubits: [],
+        parameterValues: []
+      }
+    ]
   },
   [ComposerCatalogueType.NOT]: {
-    type: OperationType.NOT,
-    text: 'X',
-    color: 'blue',
-    numTargetQubits: 1,
-    numControlQubits: [0, 3, 0],
-    relativeWidth: 1.0,
-    parameters: []
+    operations: [
+      {
+        type: OperationType.NOT,
+        id: '<tbd>',
+        targetQubits: [0],
+        controlQubits: [],
+        parameterValues: []
+      }
+    ]
   },
   [ComposerCatalogueType.CNOT]: {
-    type: OperationType.NOT,
-    text: 'X',
-    color: 'blue',
-    numTargetQubits: 1,
-    numControlQubits: [0, 3, 1],
-    relativeWidth: 1.0,
-    parameters: []
+    operations: [
+      {
+        type: OperationType.NOT,
+        id: '<tbd>',
+        targetQubits: [1],
+        controlQubits: [0],
+        parameterValues: []
+      }
+    ]
   },
   [ComposerCatalogueType.CCNOT]: {
-    type: OperationType.NOT,
-    text: 'X',
-    color: 'blue',
-    numTargetQubits: 1,
-    numControlQubits: [0, 3, 2],
-    relativeWidth: 1.0,
-    parameters: []
+    operations: [
+      {
+        type: OperationType.NOT,
+        id: '<tbd>',
+        targetQubits: [2],
+        controlQubits: [0, 1],
+        parameterValues: []
+      }
+    ]
   },
   [ComposerCatalogueType.IDENTITY]: {
-    type: OperationType.IDENTITY,
-    text: 'I',
-    color: 'blue',
-    numTargetQubits: 1,
-    numControlQubits: [0, 0, 0],
-    relativeWidth: 1.0,
-    parameters: []
+    operations: [
+      {
+        type: OperationType.IDENTITY,
+        id: '<tbd>',
+        targetQubits: [0],
+        controlQubits: [],
+        parameterValues: []
+      }
+    ]
   },
   [ComposerCatalogueType.Z]: {
-    type: OperationType.Z,
-    text: 'Z',
-    color: 'grey',
-    numTargetQubits: 1,
-    numControlQubits: [0, 0, 0],
-    relativeWidth: 1.0,
-    parameters: []
+    operations: [
+      {
+        type: OperationType.Z,
+        id: '<tbd>',
+        targetQubits: [0],
+        controlQubits: [],
+        parameterValues: []
+      }
+    ]
   },
   [ComposerCatalogueType.RY]: {
-    type: OperationType.RY,
-    text: 'RY',
-    color: 'pink',
-    numTargetQubits: 1,
-    numControlQubits: [0, 1, 0],
-    relativeWidth: 1.0,
-    parameters: [{
-      name: 'lambda',
-      default: 'pi/2'
-    }]
+    operations: [
+      {
+        type: OperationType.RY,
+        id: '<tbd>',
+        targetQubits: [0],
+        controlQubits: [],
+        parameterValues: ['pi/2']
+      }
+    ]
   }
 }
 
-export function createOperation(type: ComposerCatalogueType) {
-  const options = ComposerCatalogue[type];
-  if(!options) {
-    throw new Error(`Error getting options for ${type}`);
-  }
-  return new ComposerOperation(options);
+
+export function createOperations(type: ComposerCatalogueType) {
+  const composerCatalogueItem = ComposerCatalogue[type];
+  return composerCatalogueItem.operations.map(operationData => Operation.fromData(operationData));
 }
 

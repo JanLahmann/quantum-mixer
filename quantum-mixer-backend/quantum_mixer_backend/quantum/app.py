@@ -27,3 +27,21 @@ async def get_probabilities(circuit_data: CircuitData):
         },
         'circuit_drawing': circuit_drawing
     }
+
+@app.post('/measurements')
+async def get_measurements(circuit_data: CircuitData, num_shots: int = 1):
+
+    # create executor
+    executor = CircuitExecutor.from_circuit_data(circuit_data)
+
+    # get results
+    results = []
+    for _ in range(num_shots):
+        result_analytical = executor.probabilities_qasm(num_shots=1)
+        result_analytical_bits = max(result_analytical, key=result_analytical.key)
+        results.push(result_analytical_bits)
+    
+    # return data
+    return {
+        'results': results
+    }

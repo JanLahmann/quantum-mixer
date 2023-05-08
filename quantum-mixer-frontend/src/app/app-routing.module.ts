@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ComposerMainComponent } from './composer/composer-main/composer-main.component';
+import { PageEditorComponent } from './page-editor/page-editor.component';
 
 const routes: Routes = [
   {
-    component: ComposerMainComponent,
+    component: PageEditorComponent,
     path: '',
     pathMatch: 'full'
   }
