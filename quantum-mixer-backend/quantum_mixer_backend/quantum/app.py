@@ -20,10 +20,11 @@ async def get_probabilities(circuit_data: CircuitData):
 
     # return data
     return {
+        'bits': executor.bit_order,
         'results': {
-            'analytical': result_analytical,
-            'qasm': result_qasm,
-            'mock': result_mock
+            'analytical': [result_analytical[b] for b in executor.bit_order],
+            'qasm': [result_qasm[b] for b in executor.bit_order],
+            'mock': [result_mock[b] for b in executor.bit_order],
         },
         'circuit_drawing': circuit_drawing
     }

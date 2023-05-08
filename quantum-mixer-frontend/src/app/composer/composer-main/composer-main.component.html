@@ -42,6 +42,7 @@
           draggable="true"
           (dragstart)="handleOperationDragStart($event, op.operationId)"
           (dragend)="handleDragEnd()"
+          (click)="setActiveOperation(op.operationId)"
           >
         </div>
         <div
@@ -67,6 +68,8 @@
     </div>
   </div>
   <div id="composer-detail-container" (dragover)="handleRemoveZoneDragOver($event)" (drop)="handleRemoveZoneDrop($event)">
-    <span>Remove</span>
+    <app-composer-operation-info *ngIf="activeOperation" [operation]="activeOperation" [numQubits]="composer.numQubits"></app-composer-operation-info>
+
+    <span *ngIf="!activeOperation">Remove</span>
   </div>
 </div>

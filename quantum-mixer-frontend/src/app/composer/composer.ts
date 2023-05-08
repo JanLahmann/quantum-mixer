@@ -162,7 +162,7 @@ export class Composer {
     for(let slot = 0; slot <= slots; slot++) {
       const slotOperations = this.getOperationsForSlot(slot);
       const slotViewData: ComposerSlotViewData = {
-        relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.properties.relativeWidth)) : 0,
+        relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.relativeWidth)) : 0,
         operations: this.getOperationsForSlot(slot).map(op => {
           const opSvg    = op.svg?.svg();
           return {
@@ -170,7 +170,7 @@ export class Composer {
             operationSvg: opSvg,
             firstQubit: op.getFirstQubit(),
             numQubitsCovered: op.getNumQubitsCovered(),
-            relativeWidth: op.properties.relativeWidth
+            relativeWidth: op.relativeWidth
           }
         })
       }

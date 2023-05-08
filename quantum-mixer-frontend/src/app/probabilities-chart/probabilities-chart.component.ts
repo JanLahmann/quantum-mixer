@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { ChartConfiguration } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   selector: 'app-probabilities-chart',
@@ -9,6 +10,19 @@ import { ChartConfiguration } from 'chart.js';
 export class ProbabilitiesChartComponent {
 
   public showLegend = true;
+  public plugins = {
+    legend: {
+      display: true,
+      position: 'top',
+    },
+    datalabels: {
+      formatter: (value: any, ctx: any) => {
+        return 'yolo'
+      },
+    },
+  }
+
+  @ViewChild('chart') chart: BaseChartDirective | undefined = undefined;
 
   @Input('data') data: ChartConfiguration<'bar'>['data'] = {
     labels: [],
@@ -16,6 +30,9 @@ export class ProbabilitiesChartComponent {
   }
 
   options: ChartConfiguration<'bar'>['options'] = {
-    responsive: false,
+    responsive: true,
+    animation: {
+      duration: 200
+    }
   };
 }

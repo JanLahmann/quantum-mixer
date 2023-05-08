@@ -1,5 +1,9 @@
-<h1>Welcome</h1>
+<div class="container">
+  <h1>Welcome</h1>
 
-<app-composer-main #appComposer (change)="updateData($event)"></app-composer-main>
+  <app-composer-main #appComposer (change)="updateData($event)"></app-composer-main>
 
-<app-probabilities-chart [data]="chartData"></app-probabilities-chart>
+  <app-probabilities-chart [data]="chartData"></app-probabilities-chart>
+
+</div>
+

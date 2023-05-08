@@ -9,6 +9,7 @@ import { ComposerMainComponent } from './composer/composer-main/composer-main.co
 import { NgChartsModule } from 'ng2-charts';
 import { ProbabilitiesChartComponent } from './probabilities-chart/probabilities-chart.component';
 import { PageEditorComponent } from './page-editor/page-editor.component';
+import { ComposerOperationInfoComponent } from './composer/composer-operation-info/composer-operation-info.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { PageEditorComponent } from './page-editor/page-editor.component';
     AsRangePipe,
     ComposerMainComponent,
     ProbabilitiesChartComponent,
-    PageEditorComponent
+    PageEditorComponent,
+    ComposerOperationInfoComponent,
   ],
   imports: [
     BrowserModule,

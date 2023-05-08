@@ -1,8 +1,9 @@
 export interface ApiProbabilitiesResponse {
+  bits: string[]
   results: {
-    analytical: {[key: string]: number},
-    qasm: {[key: string]: number},
-    mock: {[key: string]: number}
+    analytical: number[]
+    qasm: number[]
+    mock: number[]
   },
   circuit_drawing: string
 }

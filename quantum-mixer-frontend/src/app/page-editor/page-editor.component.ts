@@ -51,25 +51,28 @@ export class PageEditorComponent implements OnInit {
             }
           ]
         })
-      })
+      }, 500)
   }
 
+  private _updateTimeout: any = null;
   updateData(circuitData: CircuitData) {
-    this.fetchProbabilities(circuitData).then(res => {
-      this.chartData = {
-        labels: Object.keys(res.results),
-        datasets: Object.keys(res.results).map(key => {
-          const data = res.results[<'analytical'|'qasm'|'mock'>key];
-          const order = Object.keys(data).sort();
-          return {
-            label: key,
-            data: order.map(o => data[o])
-          }
-        })
-      }
-    }, error => {
-      console.error(error);
-    })
+    clearTimeout(this._updateTimeout);
+    this._updateTimeout = setTimeout(() => {
+      this.fetchProbabilities(circuitData).then(res => {
+        this.chartData = {
+          labels: res.bits,
+          datasets: Object.keys(res.results).map(key => {
+            const data = res.results[<'analytical'|'qasm'|'mock'>key];
+            return {
+              label: key,
+              data: data
+            }
+          })
+        }
+      }, error => {
+        console.error(error);
+      })
+    }, 200)
   }
 
   async fetchProbabilities(circuitData: CircuitData): Promise<ApiProbabilitiesResponse> {

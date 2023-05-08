@@ -3,6 +3,7 @@ import { Composer } from '../composer';
 import { ComposerCatalogueType, createOperations } from '../composer-catalogue';
 import { CircuitData } from '../circuit';
 import { Unsubscribable } from 'rxjs';
+import { Operation } from '../operation';
 
 export interface ComposerDragData {
   type: 'qo-move' | 'qo-add',
@@ -30,6 +31,8 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
   public isDragging: boolean = false;
   /** show info field to the right */
   public hasInfo: boolean = false;
+  /** active operation */
+  public activeOperation: Operation | null = null;
 
   @Output('change') change: EventEmitter<CircuitData> = new EventEmitter();
   private _changeSub: Unsubscribable | null = null;
@@ -68,6 +71,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
     // init drag
     this.isDragging = true;
     this.hasInfo = false;
+    this.activeOperation = null;
 
     // create new operation
     const newOperation = createOperations(catalogueType)[0];
@@ -112,6 +116,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
     const qubitDragOffset = (layerY && isFinite(qubitHeight)) ? Math.floor(layerY/qubitHeight) : 0;
     // mark item as being dragged
     (<HTMLDivElement>ev.target).classList.add('dragging-operation');
+    this.activeOperation = null;
     this.isDragging = true;
     this.hasInfo = true; // required to enable delete button
 
@@ -169,7 +174,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @param slot
    * @returns
    */
-  handleDropzoneDragOver(ev: DragEvent, qubitIdx: number, slot: number) {
+  public handleDropzoneDragOver(ev: DragEvent, qubitIdx: number, slot: number) {
     this.currentDragZoneOver = slot;
     ev.preventDefault();
     const evData = this._getDragData(ev);
@@ -180,7 +185,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * Dragover handler for removal. Need to call preventDefault in order to allow for drops
    * @param ev
    */
-  handleRemoveZoneDragOver(ev: DragEvent) {
+  public handleRemoveZoneDragOver(ev: DragEvent) {
     this.currentDragZoneOver = -1;
     ev.preventDefault();
   }
@@ -192,7 +197,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @param slot
    * @returns
    */
-  handleDropzoneDrop(ev: DragEvent, qubitIdx: number, slot: number) {
+  public handleDropzoneDrop(ev: DragEvent, qubitIdx: number, slot: number) {
     ev.preventDefault();
     this.resetDragDrop();
     // get data from drop
@@ -225,7 +230,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @param ev
    * @returns
    */
-  handleRemoveZoneDrop(ev: DragEvent) {
+  public handleRemoveZoneDrop(ev: DragEvent) {
     ev.preventDefault();
     this.resetDragDrop();
     // get data from drop
@@ -240,7 +245,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
   /**
    * Reset everything if not dropped
    */
-  handleDragEnd() {
+  public handleDragEnd() {
     this.resetDragDrop();
   }
 
@@ -249,11 +254,23 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @param value
    * @returns
    */
-  cssRelValue(value?: number): string {
+  public cssRelValue(value?: number): string {
     if(!value) {
       return '0';
     }
     return `calc(${value} * var(--qo-qubit-height))`;
+  }
+
+  /**
+   * Set active operation by id
+   * @param opId
+   */
+  public setActiveOperation(opId: string) {
+    const operation = this.composer.getOperationById(opId);
+    if(operation) {
+      this.hasInfo = true;
+      this.activeOperation = operation;
+    }
   }
 
   ngOnDestroy() {

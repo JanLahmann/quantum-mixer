@@ -19,9 +19,13 @@ export enum OperationType {
 export interface OperationProperties {
   /** Operation type */
   type: OperationType,
+  /** Title */
+  title: string,
+  /** Description */
+  description: string,
   /** Number of target qubits. Can not be changed. */
   numTargetQubits: number,
-  /** Number of control qubits. First number is minimum, second is maximum and third number is default */
+  /** Number of control qubits. First number is minimum, second is maximum. */
   numControlQubits: number[],
   /** Parameters */
   parameters: {
@@ -35,12 +39,14 @@ export interface OperationProperties {
   /** Text inside main block */
   text: string;
   /** Relative width of main block */
-  relativeWidth: number;
+  relativeWidth?: number;
 }
 
 export const OperationProperties: {[key in OperationType]: OperationProperties} = {
   [OperationType.HADAMARD]: {
     type: OperationType.HADAMARD,
+    title: 'Hadamard',
+    description: '',
     numTargetQubits: 1,
     numControlQubits: [0, 1],
     parameters: [],
@@ -50,15 +56,19 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   },
   [OperationType.NOT]: {
     type: OperationType.NOT,
+    title: 'NOT',
+    description: '',
     numTargetQubits: 1,
     numControlQubits: [0, 2],
     parameters: [],
-    color: 'rgb(83, 192, 247)',
-    text: 'X',
+    color: 'rgb(83, 139, 247)',
+    text: '+',
     relativeWidth: 1.0
   },
   [OperationType.Z]: {
     type: OperationType.Z,
+    title: 'Z',
+    description: '',
     numTargetQubits: 1,
     numControlQubits: [0, 2],
     parameters: [],
@@ -68,6 +78,8 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   },
   [OperationType.IDENTITY]: {
     type: OperationType.IDENTITY,
+    title: 'Identity',
+    description: '',
     numTargetQubits: 1,
     numControlQubits: [0, 0],
     parameters: [],
@@ -77,6 +89,8 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   },
   [OperationType.RY]: {
     type: OperationType.RY,
+    title: 'Rotation Y',
+    description: '',
     numTargetQubits: 1,
     numControlQubits: [0, 2],
     parameters: [{
@@ -120,7 +134,9 @@ const CONTROL_RADIUS = 20;
 const CONNECTION_WIDTH = 5;
 /** Padding for target blocks */
 const TARGET_PADDING = 5;
-
+/** Font size */
+const FONT_SIZE = 25;
+const FONT_SIZE_PARAMS = 10;
 
 export class Operation {
 
@@ -147,6 +163,11 @@ export class Operation {
 
   /** All properties used for initialization */
   public readonly properties: OperationProperties;
+
+  /** Relative width */
+  get relativeWidth(): number {
+    return this.properties.relativeWidth || 1.0;
+  }
 
 
   constructor(properties: OperationProperties) {
@@ -182,12 +203,12 @@ export class Operation {
 
   private _targetQubits: number[] = [];
   get targetQubits(): number[] {
-    return this._targetQubits;
+    return JSON.parse(JSON.stringify(this._targetQubits));
   }
 
   private _controlQubits: number[] = [];
   get controlQubits(): number[] {
-    return this._controlQubits;
+    return JSON.parse(JSON.stringify(this._controlQubits));
   }
 
   /**
@@ -199,6 +220,7 @@ export class Operation {
     const ps = this._parameters.filter(p => p.name == name);
     if(ps.length == 1) {
       ps[0].value = value;
+      this._notifyChange();
     }
   }
 
@@ -311,6 +333,7 @@ export class Operation {
    */
   private _notifyChange() {
     this._renderSvg();  // rerender on every change
+    console.log('change', this.id);
     this.change.next();
   }
 
@@ -346,7 +369,7 @@ export class Operation {
     const minQubit  = this.getFirstQubit();
     const numQubitsCovered = this.getNumQubitsCovered();
 
-    const operationWidth = this.properties.relativeWidth*QUBIT_HEIGHT;
+    const operationWidth = (this.properties.relativeWidth || 1)*QUBIT_HEIGHT;
 
     // setup view
     const qoSvg = svg.SVG();
@@ -373,18 +396,47 @@ export class Operation {
     const lastTargetQubit = Math.max(...this._targetQubits)-minQubit;
     const targetHeight = (lastTargetQubit-firstTargetQubit+1)*QUBIT_HEIGHT
     const targetFromTop = firstTargetQubit*QUBIT_HEIGHT;
-    qoSvg.rect(operationWidth-(2*TARGET_PADDING), targetHeight-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0})
 
-    // create text element
-    qoSvg.text(t => {
-      t.tspan(this.properties.text).dx("50%").dy(targetFromTop+(targetHeight/2)).font({
-        anchor: 'middle'
-      }).attr('dominant-baseline', 'middle')
-    }).font({
-      size: 50,
-      leading: 1.0
-    });
-
+    // special treatment for not
+    if(this.type == OperationType.NOT) {
+      qoSvg.circle(operationWidth-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
+      qoSvg.text(t => {
+        t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - 0.08*QUBIT_HEIGHT);
+      }).font({
+        size: 0.8*QUBIT_HEIGHT,  // actual font size is 0.6*size, dont ask me why
+        leading: 1.0,
+        weight: 'lighter'
+      }).attr({
+        "dominant-baseline": "central",
+        "text-anchor": "middle"
+      });
+    }
+    else {
+      qoSvg.rect(operationWidth-(2*TARGET_PADDING), targetHeight-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
+      // add text for main block
+      const offsetForParameters = (this.parameterValues.length > 0) ? 0.8*FONT_SIZE_PARAMS : 0;
+      qoSvg.text(t => {
+        t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - offsetForParameters);
+      }).font({
+        size: FONT_SIZE/0.6,  // actual font size is 0.6*size, dont ask me why
+        leading: 1.0
+      }).attr({
+        "dominant-baseline": "central",
+        "text-anchor": "middle"
+      });
+      if(this.parameterValues.length > 0) {
+        const parameterStr = '(' + this.parameterValues.join(',') + ')'
+        qoSvg.text(t => {
+          t.tspan(parameterStr).dx("50%").y(targetFromTop + targetHeight/2 + 0.8*FONT_SIZE);
+        }).font({
+          size: FONT_SIZE_PARAMS/0.6,
+          leading: 1.0
+        }).attr({
+          "dominant-baseline": "central",
+          "text-anchor": "middle"
+        });
+      }
+    }
     // save svg
     this._svg = qoSvg;
   }
