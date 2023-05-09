@@ -1,22 +1,31 @@
 import { Injectable } from '@angular/core';
 import { Circuit } from './model/circuit';
-import { Operation } from './model/operation';
-import { ReplaySubject, Subject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 
-export interface ApiProbabilitiesResponse {
-  bits: string[]
-  results: {
-    analytical: number[]
-    qasm: number[]
-    mock: number[]
-  },
-  circuit_drawing: string
+export enum DeviceType {
+  ANALYTICAL = 'analytical',
+  MOCK       = 'mock',
+  QASM       = 'qasm'
 }
 
-export interface ApiMeasurementResponse {
+export const DeviceNames: {[device in DeviceType]: string} = {
+  [DeviceType.ANALYTICAL]: 'Analytical',
+  [DeviceType.MOCK]: 'Mock Device',
+  [DeviceType.QASM]: 'QASM Simulator'
+}
+
+export interface ProbabilitiesResponse {
+  bits: string[],
+  results: {[key in DeviceType]: number[]},
+  circuit: string,
+  qasm: string
+}
+
+export interface MeasurementResponse {
+  shots: number,
+  device: DeviceType,
   results: string[]
 }
-
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +34,7 @@ export class EditorService {
 
   public isDragging: boolean = false;
   public readonly circuit: Circuit = new Circuit();
-  public probabilities: ReplaySubject<ApiProbabilitiesResponse> = new ReplaySubject();
+  public probabilities: ReplaySubject<ProbabilitiesResponse> = new ReplaySubject();
 
   constructor() {
     this.circuit.change.subscribe(_ => {
@@ -38,7 +47,7 @@ export class EditorService {
     return new Promise((resolve, reject) => {
       clearTimeout(this._bufferedRequestTimeout);
       this._bufferedRequestTimeout = setTimeout(() => {
-        fetch('http://localhost:8000/api/probabilities', {
+        fetch('http://localhost:8000/api/quantum/probabilities', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -56,9 +65,9 @@ export class EditorService {
     })
   }
 
-  public measure(num_shots: number): Promise<ApiMeasurementResponse> {
+  public measure(numShots: number): Promise<MeasurementResponse> {
     return new Promise((resolve, reject) => {
-      fetch(`http://localhost:8000/api/measurements?num_shots=${num_shots}`, {
+      fetch(`http://localhost:8000/api/quantum/measurements?shots=${numShots}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

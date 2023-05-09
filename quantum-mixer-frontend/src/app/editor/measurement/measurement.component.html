@@ -1,1 +1,8 @@
-<button class="btn btn-primary" (click)="measure()">Measure</button>
+<button *ngIf="status != 'ordered'" [disabled]="status == 'loading'" class="btn btn-primary" (click)="measure()">Measure</button>
+<ul *ngIf="data">
+  <li *ngFor="let res of data">
+    {{res.display}}
+  </li>
+</ul>
+<button *ngIf="status == 'measured'" class="btn btn-primary" (click)="order()">Order</button>
+<p *ngIf="status == 'ordered'">Ordered</p>

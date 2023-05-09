@@ -2,13 +2,8 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Unsubscribable } from 'rxjs';
-import { EditorService } from '../editor.service';
-
-const RESULT_NAMES: {[key: string]: string} = {
-  analytical: 'Analytical',
-  qasm: 'QASM',
-  mock: 'Mock Device'
-}
+import { DeviceNames, DeviceType, EditorService } from '../editor.service';
+import { UsecaseService } from 'src/app/usecase.service';
 
 @Component({
   selector: 'app-probabilities-chart',
@@ -21,19 +16,26 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
   public plugins = [ChartDataLabels];
   private _changeSub: Unsubscribable | null = null;
 
-  constructor(public editorService: EditorService) {
+  constructor(public editorService: EditorService, private usecaseService: UsecaseService) {
 
+  }
+
+  async createLabels(bitConfiguration: string[]) {
+    await this.usecaseService.initialLoadingPromise;
+    return bitConfiguration.map(config => {
+      return [this.usecaseService.data?.bitMapping[config].name, config];
+    })
   }
 
   ngOnInit() {
     Chart.register(ChartDataLabels);
-    this._changeSub = this.editorService.probabilities.subscribe(res => {
+    this._changeSub = this.editorService.probabilities.subscribe(async res => {
       this.data = {
-        labels: res.bits,
+        labels: await this.createLabels(res.bits),
         datasets: Object.keys(res.results).map(key => {
-          const data = res.results[<'analytical'|'qasm'|'mock'>key];
+          const data = res.results[<DeviceType>key];
           return {
-            label: RESULT_NAMES[key],
+            label: DeviceNames[<DeviceType>key],
             data: data
           }
         })

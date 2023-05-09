@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .frontend import app as frontend_app
 from .quantum import app as quantum_app
+from .usecases import app as usecase_app
 
 app = FastAPI()
 
@@ -16,9 +17,16 @@ app.add_middleware(
 
 # mount quantum app
 app.mount(
-    path='/api',
+    path='/api/quantum',
     app=quantum_app,
     name='Qiskit API'
+)
+
+# mount usecase
+app.mount(
+    path='/api/usecase',
+    app=usecase_app,
+    name='Usecase API'
 )
 
 # mount singlepage application

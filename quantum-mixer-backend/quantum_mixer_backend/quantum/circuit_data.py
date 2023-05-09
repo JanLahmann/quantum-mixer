@@ -18,6 +18,21 @@ class OperationData(BaseModel):
     parameterValues: Annotated[list[str], "Parameters for gate"]
 
 class CircuitData(BaseModel):
-    numQubits: Annotated[int, "number of qubits"]
-    operations: Annotated[list[OperationData], "list of operations"]
+    numQubits: Annotated[int, "Number of qubits"]
+    operations: Annotated[list[OperationData], "List of operations"]
 
+class DeviceEnum(str, Enum):
+    ANALYTICAL = 'analytical'
+    QASM       = 'qasm'
+    MOCK       = 'mock'
+
+class ProbabilitiesResponse(BaseModel):
+    bits: Annotated[list[str], "Ordered list of bit configuration, corrsponds to order in results"]
+    results: Annotated[dict[DeviceEnum, list[float]], "Results for each device"]
+    circuit: Annotated[str, "ASCII drawing of circuit"]
+    qasm: Annotated[str, "QASM code of circuit"]
+
+class MeasurementResponse(BaseModel):
+    shots: Annotated[int, "Number of shots"]
+    device: Annotated[DeviceEnum, "Device used to do measurement"]
+    results: Annotated[list[str], "List of measured bit configurations"]
