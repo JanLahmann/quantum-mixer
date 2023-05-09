@@ -47,7 +47,7 @@ export class EditorService {
     return new Promise((resolve, reject) => {
       clearTimeout(this._bufferedRequestTimeout);
       this._bufferedRequestTimeout = setTimeout(() => {
-        fetch('http://localhost:8000/api/quantum/probabilities', {
+        fetch('/api/quantum/probabilities', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -67,7 +67,7 @@ export class EditorService {
 
   public measure(numShots: number): Promise<MeasurementResponse> {
     return new Promise((resolve, reject) => {
-      fetch(`http://localhost:8000/api/quantum/measurements?shots=${numShots}`, {
+      fetch(`/api/quantum/measurements?shots=${numShots}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -36,7 +36,7 @@ export class UsecaseService {
 
   private loadData(): Promise<void> {
     return new Promise((resolve, reject) => {
-      fetch(`http://localhost:8000/api/usecase/data`, {
+      fetch(`/api/usecase/data`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -54,7 +54,7 @@ export class UsecaseService {
 
   public order(items: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
-      fetch(`http://localhost:8000/api/usecase/order`, {
+      fetch(`/api/usecase/order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

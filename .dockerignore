@@ -1,15 +1,21 @@
-**/.git
 **/.env
-**/node_modules
-**/.angular
-**/.vscode
+**/.git/
+# Node
+**/node_modules/
+**/.angular/
+# VSC
+**/.vscode/
 **/.editorconfig
-**/.venv
-quantum-mixer-frontend/dist
-quantum-mixer-backend/public
-quantum-mixer-backend/tests
-*.egg-info
-*.egg/
+# Python
+**/.venv/
+**/__pycache__/
 *.pyc
 *.swp
-**/__pycache__
+
+# We will build frontend inside container
+quantum-mixer-frontend/dist/
+# We will copy the built frontend inside container
+quantum-mixer-backend/public
+# We do not test
+quantum-mixer-backend/tests
+
