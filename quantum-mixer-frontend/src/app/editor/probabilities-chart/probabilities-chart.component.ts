@@ -1,9 +1,10 @@
-import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, Chart } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Unsubscribable } from 'rxjs';
 import { DeviceNames, DeviceType, EditorService } from '../editor.service';
 import { UsecaseService } from 'src/app/usecase.service';
+import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   selector: 'app-probabilities-chart',
@@ -16,8 +17,9 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
   public plugins = [ChartDataLabels];
   private _changeSub: Unsubscribable | null = null;
 
-  constructor(public editorService: EditorService, private usecaseService: UsecaseService) {
+  @ViewChild('chart') chart: BaseChartDirective | undefined;
 
+  constructor(public editorService: EditorService, private usecaseService: UsecaseService) {
   }
 
   async createLabels(bitConfiguration: string[]) {
@@ -27,19 +29,22 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
     })
   }
 
+  private isInitial: boolean = true;
   ngOnInit() {
     Chart.register(ChartDataLabels);
     this._changeSub = this.editorService.probabilities.subscribe(async res => {
       this.data = {
         labels: await this.createLabels(res.bits),
-        datasets: Object.keys(res.results).map(key => {
+        datasets: Object.keys(res.results).map((key, i) => {
           const data = res.results[<DeviceType>key];
           return {
             label: DeviceNames[<DeviceType>key],
-            data: data
+            data: data,
+            hidden: !this.isInitial && !this.chart?.chart?.isDatasetVisible(i)
           }
         })
       }
+      this.isInitial = false;
     })
   }
 
