@@ -3,10 +3,10 @@
     <div class="qubit-selection-description">
       Target Qubits
     </div>
-    <div *ngFor="let qubitIdx of numQubits | asRange" class="form-check qubit-control">
+    <div *ngFor="let qubitIdx of numQubits | asRange" class="qubit-control">
       <input
         #input
-        class="form-check-input input-target-qubit"
+        class="input-target-qubit"
         type="checkbox"
         [checked]="operation && operation.targetQubits.indexOf(qubitIdx) > -1"
         [value]="qubitIdx"
@@ -18,10 +18,10 @@
     <div class="qubit-selection-description">
       Control Qubits
     </div>
-    <div *ngFor="let qubitIdx of numQubits | asRange" class="form-check qubit-control">
+    <div *ngFor="let qubitIdx of numQubits | asRange" class="qubit-control">
       <input
         #input
-        class="form-check-input input-control-qubit"
+        class="input-control-qubit"
         type="checkbox"
         [checked]="operation && operation.controlQubits.indexOf(qubitIdx) > -1"
         [disabled]="

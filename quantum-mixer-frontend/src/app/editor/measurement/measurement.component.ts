@@ -33,7 +33,6 @@ export class MeasurementComponent implements OnInit {
       const data = await this.editorService.measure(this.numMeasurements);
       data.results.map((result, i) => {
         setTimeout(() => {
-          console.log(result, this.usecaseService.data?.bitMapping)
           this.data.push({
             bit: result,
             icon: this.usecaseService.data!.bitMapping[result].icon,
@@ -58,6 +57,7 @@ export class MeasurementComponent implements OnInit {
     this.status = 'ordered';
     setTimeout(() => {
       this.status = 'ready';
-    }, 2000)
+      this.editorService.circuit.reset();
+    }, 5000)
   }
 }

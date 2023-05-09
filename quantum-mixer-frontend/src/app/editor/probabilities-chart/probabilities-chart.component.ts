@@ -49,6 +49,10 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
   }
 
   public options: ChartConfiguration<'bar'>['options'] = {
+    // font: {
+    //   family: "IBM Plex Sans",
+    //   size: 34
+    // },
     responsive: true,
     animation: {
       duration: 200
@@ -62,11 +66,35 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
           maxTicksLimit: 10,
           format: {
             style: 'percent'
-          }
+          },
+          font: {
+            size: 14,
+            family: 'IBM Plex Sans'
+          },
+          color: 'black'
+        }
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 14,
+            family: 'IBM Plex Sans'
+          },
+          color: 'black'
         }
       }
     },
     plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 14,
+            family: 'IBM Plex Sans'
+          },
+          color: 'black'
+        }
+      },
       datalabels: {
         anchor: 'center',
         textAlign: 'center',
@@ -79,7 +107,12 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
           } else {
             return newVal+'%'
           }
-        }
+        },
+        font: {
+          size: 14,
+          family: 'IBM Plex Sans',
+        },
+        color: 'black'
       }
     }
   }

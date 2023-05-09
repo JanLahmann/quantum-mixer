@@ -428,7 +428,7 @@ export class Operation {
       /** Special: SWAP */
       case OperationType.SWAP:
         qoSvg.text(t => {
-          t.tspan('X').dx("50%").y(lastTargetQubit*QUBIT_HEIGHT + QUBIT_HEIGHT/2);
+          t.tspan('x').dx("50%").y(lastTargetQubit*QUBIT_HEIGHT + QUBIT_HEIGHT/2 - 0.08*QUBIT_HEIGHT);
         }).font({
           size: 0.6*QUBIT_HEIGHT,
           leading: 1.0
@@ -437,7 +437,7 @@ export class Operation {
           "text-anchor": "middle"
         });
         qoSvg.text(t => {
-          t.tspan('X').dx("50%").y(targetFromTop + QUBIT_HEIGHT/2);
+          t.tspan('x').dx("50%").y(targetFromTop + QUBIT_HEIGHT/2 - 0.08*QUBIT_HEIGHT);
         }).font({
           size: 0.6*QUBIT_HEIGHT,
           leading: 1.0

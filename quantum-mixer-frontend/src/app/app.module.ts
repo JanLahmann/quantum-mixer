@@ -12,6 +12,9 @@ import { PageEditorComponent } from './editor/page-editor/page-editor.component'
 import { ComposerOperationInfoComponent } from './editor/composer/composer-operation-info/composer-operation-info.component';
 import { ComposerOperationCatalogueComponent } from './editor/composer/composer-operation-catalogue/composer-operation-catalogue.component';
 import { MeasurementComponent } from './editor/measurement/measurement.component';
+import { ButtonModule, GridModule, TilesModule, UIShellModule } from 'carbon-components-angular';
+import { HeaderComponent } from './header/header.component';
+import { UsecaseHomeComponent } from './usecase-home/usecase-home.component';
 
 @NgModule({
   declarations: [
@@ -24,11 +27,17 @@ import { MeasurementComponent } from './editor/measurement/measurement.component
     ComposerOperationInfoComponent,
     ComposerOperationCatalogueComponent,
     MeasurementComponent,
+    HeaderComponent,
+    UsecaseHomeComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgChartsModule
+    NgChartsModule,
+    UIShellModule,
+    GridModule,
+    ButtonModule,
+    TilesModule
   ],
   providers: [],
   bootstrap: [AppComponent]

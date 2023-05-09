@@ -69,9 +69,7 @@ $qubit-panel-width: 33%;
     cursor: pointer;
 
     &.active {
-      border-style: solid;
-      border-color: lightblue;
-      border-width: 1px;
+      background-color: rgba(lightblue, 0.3);
     }
   }
 
@@ -103,7 +101,7 @@ $qubit-panel-width: 33%;
   top: 0;
   bottom: 0;
   width: 0;
-  background-color: lightgray;
+  background-color: rgb(243, 243, 243);
   overflow: hidden;
 
   span {

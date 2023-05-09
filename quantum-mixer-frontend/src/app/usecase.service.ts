@@ -18,7 +18,12 @@ export interface UsecaseData {
   },
   initialCircuits: {
     name: string,
-    circuit: CircuitData[]
+    circuits: {
+      id: string,
+      name: string,
+      description: string,
+      data: CircuitData
+    }[]
   }[]
 }
 

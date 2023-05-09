@@ -5,6 +5,8 @@ import { Operation, OperationProperties, OperationType } from '../../model/opera
 import { EditorService } from '../../editor.service';
 import { cssRelValue } from '../../../common/utils';
 import { ComposerDragData, ComposerSlotViewData, ComposerViewData } from '../../model/composer';
+import { ActivatedRoute } from '@angular/router';
+import { UsecaseService } from 'src/app/usecase.service';
 
 @Component({
   selector: 'app-composer-main',
@@ -13,7 +15,7 @@ import { ComposerDragData, ComposerSlotViewData, ComposerViewData } from '../../
 })
 export class ComposerMainComponent implements OnInit, OnDestroy {
 
-  constructor(public editorService: EditorService) {
+  constructor(public editorService: EditorService, private route: ActivatedRoute, private usecaseService: UsecaseService) {
 
   }
 
@@ -40,10 +42,18 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this._changeSub = this.editorService.circuit.change.subscribe(_ => {
       this._buildViewData();
-    })
+    });
 
-    const newOp = new Operation(OperationProperties[OperationType.SWAP]);
-    this.editorService.circuit.addOperations([newOp], 1, 0);
+    this.route.params.subscribe(async param => {
+      await this.usecaseService.initialLoadingPromise;
+      if(param['catalogueid']) {
+        const allCircuits = this.usecaseService.data?.initialCircuits.map(section => section.circuits).flat();
+        const circuitData = allCircuits ? allCircuits.filter(circuit => circuit.id == param['catalogueid']) : [];
+        if(circuitData.length > 0) {
+          this.editorService.circuit.load(circuitData[0].data);
+        }
+      }
+    })
   }
 
   /**

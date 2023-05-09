@@ -68,7 +68,8 @@
               "browserTarget": "quantum-mixer-frontend:build:production"
             },
             "development": {
-              "browserTarget": "quantum-mixer-frontend:build:development"
+              "browserTarget": "quantum-mixer-frontend:build:development",
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

@@ -5,11 +5,11 @@
 
   <app-composer-main></app-composer-main>
 
-  <div class="row">
-    <div class="col-8">
+  <div ibmRow>
+    <div ibmCol [columnNumbers]="{'lg': 8}">
       <app-probabilities-chart></app-probabilities-chart>
     </div>
-    <div class="col-4">
+    <div ibmCol [columnNumbers]="{'lg': 4}">
       <app-measurement></app-measurement>
     </div>
   </div>

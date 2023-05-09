@@ -1,4 +1,5 @@
 from quantum_mixer_backend.usecases.usecase_abstract import AbstractUsecase, OrderData
+from quantum_mixer_backend.quantum.circuit_data import OperationTypeEnum
 
 class QoffeeUsecase(AbstractUsecase):
 
@@ -49,7 +50,36 @@ class QoffeeUsecase(AbstractUsecase):
         }
     }
     num_qubits = 3
-    initial_circuits = []
+    initial_circuits = [{
+        "name": "From Scratch",
+        "circuits": [{
+            "id": "superposition",
+            "name": "Superposition",
+            "description": "All in superposition",
+            "data": {
+                "numQubits": 3,
+                "operations": [{
+                    "id": "<>",
+                    "type": OperationTypeEnum.HADAMARD,
+                    "targetQubits": [0],
+                    "controlQubits": [],
+                    "parameterValues": []
+                }, {
+                    "id": "<>",
+                    "type": OperationTypeEnum.HADAMARD,
+                    "targetQubits": [1],
+                    "controlQubits": [],
+                    "parameterValues": []
+                }, {
+                    "id": "<>",
+                    "type": OperationTypeEnum.HADAMARD,
+                    "targetQubits": [2],
+                    "controlQubits": [],
+                    "parameterValues": []
+                }]
+            }
+        }]
+    }]
     num_measurements = {
         "min": 1,
         "max": 1,

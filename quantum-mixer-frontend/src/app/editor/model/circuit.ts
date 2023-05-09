@@ -141,16 +141,25 @@ export class Circuit {
   }
 
   /**
-   * Load circuit data
-   * @param data
+   * Reset circuit
    */
-  public load(data: CircuitData) {
+  public reset(notify: boolean = true) {
     // reset
     this._operations = [];
     Object.values(this._subs).map(sub => sub.unsubscribe());
     this._subs = {};
-    this._numQubits = data.numQubits;
+    if(notify) {
+      this._notifyChange();
+    }
+  }
 
+  /**
+   * Load circuit data
+   * @param data
+   */
+  public load(data: CircuitData) {
+    this.reset();
+    this._numQubits = data.numQubits;
     // load operations
     this._operations = data.operations.map((operationData, idx) => {
       return {
