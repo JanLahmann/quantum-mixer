@@ -28,7 +28,7 @@ import { UsecaseHomeComponent } from './usecase-home/usecase-home.component';
     ComposerOperationCatalogueComponent,
     MeasurementComponent,
     HeaderComponent,
-    UsecaseHomeComponent,
+    UsecaseHomeComponent
   ],
   imports: [
     BrowserModule,

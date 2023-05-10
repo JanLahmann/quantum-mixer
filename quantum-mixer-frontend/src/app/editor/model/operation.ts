@@ -1,6 +1,7 @@
-import { ReplaySubject } from "rxjs";
+import { ReplaySubject, first } from "rxjs";
 import { v4 as uuidv4 } from 'uuid';
-import * as svg from '@svgdotjs/svg.js';
+import { fabric } from 'fabric';
+import { OperationRenderer } from './operation-render';
 
 
 export enum OperationType {
@@ -101,7 +102,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
     }],
     color: 'rgb(239, 184, 230)',
     text: 'RY',
-    relativeWidth: 1.0
+    relativeWidth: 1.3
   },
   [OperationType.SWAP]: {
     type: OperationType.SWAP,
@@ -345,143 +346,65 @@ export class Operation {
    * Do work required on every update (rerender, publish change event)
    */
   private _notifyChange() {
-    this._renderSvg();  // rerender on every change
+    this._render();  // rerender on every change
     this.change.next();
   }
 
-  private _svg: svg.Svg | null = null;
+  private _png: string | null = null;
   /**
    * SVG Object representing current operation.
    * Note that the operation will always start at top of SVG image,
    * even if first qubit index > 0.You need to add the distance to top in the composer.
    */
-  get svg(): svg.Svg | null {
-    return this._svg;
-  }
-
-  private _whiteBackground: boolean = false;
-  /**
-   * Create SVG with white background. This is especially useful for drag-and-drop previews
-   */
-  get whiteBackground(): boolean {
-    return this._whiteBackground;
-  }
-  set whiteBackground(wb: boolean) {
-    this._whiteBackground = wb;
-    this._notifyChange();
+  get png(): string | null {
+    return this._png;
   }
 
   /**
    * Render current state of operation to SVG object
    */
-  private _renderSvg() {
+  private _render() {
 
     // We will render image as first qubit would be on 0.
     // Therefore we need to substract minQubit from all other qubits
-    const minQubit  = this.getFirstQubit();
+    const minQubit         = this.getFirstQubit();
     const numQubitsCovered = this.getNumQubitsCovered();
 
-    const operationWidth = (this.properties.relativeWidth || 1)*QUBIT_HEIGHT;
+    const renderer = new OperationRenderer(this.properties.relativeWidth || 1, numQubitsCovered);
 
-    // setup view
-    const qoSvg = svg.SVG();
-    qoSvg.viewbox(0, 0, operationWidth, numQubitsCovered*QUBIT_HEIGHT);
-
-    // create background rectangle
-    qoSvg.rect(operationWidth, numQubitsCovered*QUBIT_HEIGHT).fill(this._whiteBackground ? 'white' : 'transparent');
-
-    // if we have controls, create connection line and controls
+    // add controls
     if(this._controlQubits.length > 0) {
-      // connection line: in center of image, always from top to bottom (independent of where control qubits are)
-      qoSvg.line(operationWidth/2, QUBIT_HEIGHT/2, operationWidth/2, QUBIT_HEIGHT*(numQubitsCovered - 0.5)).stroke({
-        width: CONNECTION_WIDTH,
-        color: this.properties.color
-      });
-      // create control qubits as circles
-      for(let control of this.controlQubits) {
-        qoSvg.circle(CONTROL_RADIUS).fill(this.properties.color).move(0.5*operationWidth - CONTROL_RADIUS/2, (0.5+control-minQubit)*QUBIT_HEIGHT - CONTROL_RADIUS/2);
-      }
+      renderer.addControls(this._controlQubits.map(c => c - minQubit), this.properties.color)
     }
 
-    // create target block
-    const firstTargetQubit = Math.min(...this._targetQubits)-minQubit;
-    const lastTargetQubit = Math.max(...this._targetQubits)-minQubit;
-    const targetHeight = (lastTargetQubit-firstTargetQubit+1)*QUBIT_HEIGHT
-    const targetFromTop = firstTargetQubit*QUBIT_HEIGHT;
-
+    // add target
     switch (this.type) {
       /** Special: NOT */
       case OperationType.NOT:
-        qoSvg.circle(operationWidth-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
-        qoSvg.text(t => {
-          t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - 0.08*QUBIT_HEIGHT);
-        }).font({
-          size: 0.8*QUBIT_HEIGHT,  // actual font size is 0.6*size, dont ask me why
-          leading: 1.0,
-          weight: 'lighter'
-        }).attr({
-          "dominant-baseline": "central",
-          "text-anchor": "middle"
-        });
+        renderer.addNot(this._targetQubits[0] - minQubit, this.properties.color);
         break;
-
       /** Special: SWAP */
       case OperationType.SWAP:
-        qoSvg.text(t => {
-          t.tspan('x').dx("50%").y(lastTargetQubit*QUBIT_HEIGHT + QUBIT_HEIGHT/2 - 0.08*QUBIT_HEIGHT);
-        }).font({
-          size: 0.6*QUBIT_HEIGHT,
-          leading: 1.0
-        }).fill(this.properties.color).attr({
-          "dominant-baseline": "central",
-          "text-anchor": "middle"
-        });
-        qoSvg.text(t => {
-          t.tspan('x').dx("50%").y(targetFromTop + QUBIT_HEIGHT/2 - 0.08*QUBIT_HEIGHT);
-        }).font({
-          size: 0.6*QUBIT_HEIGHT,
-          leading: 1.0
-        }).fill(this.properties.color).attr({
-          "dominant-baseline": "central",
-          "text-anchor": "middle"
-        });
-        qoSvg.line(operationWidth/2, targetFromTop/2 + QUBIT_HEIGHT/2, operationWidth/2, lastTargetQubit*QUBIT_HEIGHT + QUBIT_HEIGHT/2).stroke({
-          width: CONNECTION_WIDTH,
-          color: this.properties.color
-        });
+        renderer.addSwap(this._targetQubits[0] - minQubit, this._targetQubits[1] - minQubit, this.properties.color)
         break;
-
-      /** Else: standard */
+      /** Else: General Target */
       default:
-        qoSvg.rect(operationWidth-(2*TARGET_PADDING), targetHeight-(2*TARGET_PADDING)).fill(this.properties.color).move(TARGET_PADDING, targetFromTop+TARGET_PADDING).stroke({width: 0});
-        const offsetForParameters = (this.parameterValues.length > 0) ? 0.8*FONT_SIZE_PARAMS : 0;
-        qoSvg.text(t => {
-          t.tspan(this.properties.text).dx("50%").y(targetFromTop + targetHeight/2 - offsetForParameters);
-        }).font({
-          size: FONT_SIZE/0.6,  // actual font size is 0.6*size, dont ask me why
-          leading: 1.0
-        }).attr({
-          "dominant-baseline": "central",
-          "text-anchor": "middle"
-        });
-        if(this.parameterValues.length > 0) {
-          const parameterStr = '(' + this.parameterValues.join(',') + ')'
-          qoSvg.text(t => {
-            t.tspan(parameterStr).dx("50%").y(targetFromTop + targetHeight/2 + 0.8*FONT_SIZE);
-          }).font({
-            size: FONT_SIZE_PARAMS/0.6,
-            leading: 1.0
-          }).attr({
-            "dominant-baseline": "central",
-            "text-anchor": "middle"
-          });
-        }
+        const text2 = this.parameterValues.length > 0 ? '(' + this.parameterValues.join(',') + ')' : undefined;
+        renderer.addGeneralTarget(this._targetQubits.map(t => t-minQubit), this.properties.color, this.properties.text, text2);
         break;
     }
 
+    renderer.canvas.renderAll();
+
+    this.canvas = renderer.canvas.toCanvasElement();
+
     // save svg
-    this._svg = qoSvg;
+    this._png = renderer.canvas.toDataURL({
+      format: 'png'
+    })
   }
+
+  public canvas: HTMLCanvasElement | undefined;
 
   /**
    * Export values for operation

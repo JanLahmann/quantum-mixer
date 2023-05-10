@@ -44,6 +44,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
       this._buildViewData();
     });
 
+    // load circuit
     this.route.params.subscribe(async param => {
       await this.usecaseService.initialLoadingPromise;
       if(param['catalogueid']) {
@@ -74,10 +75,10 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
       const slotViewData: ComposerSlotViewData = {
         relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.relativeWidth)) : 0,
         operations: this.editorService.circuit.getOperationsForSlot(slot).map(op => {
-          const opSvg = op.svg?.svg();
+          const opImg = op.png || '';
           return {
             operationId: op.id,
-            operationSvg: opSvg,
+            operationImg: opImg,
             firstQubit: op.getFirstQubit(),
             numQubitsCovered: op.getNumQubitsCovered(),
             relativeWidth: op.relativeWidth
@@ -98,7 +99,6 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
     this.editorService.isDragging = false;
     this.showPanel = false;
     this.currentDragZoneOver = -1;
-    document.querySelectorAll('.dragging-operation').forEach(el => el.classList.remove('dragging-operation'));
   }
 
   /**
@@ -106,32 +106,32 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @param ev
    * @param opId
    */
-  handleOperationDragStart(ev: DragEvent, opId: string) {
-    // calculate at which qubit the user grabbed the image (as an offset)
-    const layerY: number = (<any>ev).layerY;
-    const qubitHeight: number = +getComputedStyle(<any>ev.target).getPropertyValue('--qo-qubit-height').replace('px', '');
-    const qubitDragOffset = (layerY && isFinite(qubitHeight)) ? Math.floor(layerY/qubitHeight) : 0;
-    // mark item as being dragged
-    (<HTMLDivElement>ev.target).classList.add('dragging-operation');
+  handleOperationDragStart(ev: DragEvent, opId: string, operationContainer: HTMLDivElement) {
+    // This is very important: Chrome and Safari will stop dragging immediately, if another container
+    // jumps on top of the dragged one (which happens because of isDragging = true)
+    operationContainer.style.zIndex = '200';
+    operationContainer.style.opacity = '0.3';
+    // operationContainer.style.pointerEvents = 'none';
+
     this.editorService.isDragging = true;
 
     this.activeOperation = null; // set to null, will show delete instead
     this.showPanel = true; // required to enable delete button
 
-    if(ev.dataTransfer) {
-      // Clear the drag data cache (for all formats/types)
-      ev.dataTransfer.clearData();
-      ev.dataTransfer.effectAllowed = 'move';
-      ev.dataTransfer.setDragImage(<any>ev.target, isFinite(qubitHeight) ? qubitHeight/2 : 0, (<any>ev).layerY || 0);
-      const operation = this.editorService.circuit.getOperationById(opId)!;
-      // Set drag data: id
-      ev.dataTransfer.setData('qo-json', JSON.stringify(<ComposerDragData>{
-        type: 'qo-move',
-        operationId: opId,
-        dragOffset: qubitDragOffset,
-        qubitsCovered: operation.getNumQubitsCovered()
-      }));
-    }
+    // calculate at which qubit the user grabbed the image (as an offset)
+    const layerY: number = (<any>ev).layerY;
+    const qubitHeight: number = +getComputedStyle(<any>ev.target).getPropertyValue('--qo-qubit-height').replace('px', '');
+    const qubitDragOffset = (layerY && isFinite(qubitHeight)) ? Math.floor(layerY/qubitHeight) : 0;
+
+    // set drag data
+    const operation = this.editorService.circuit.getOperationById(opId)!;
+    ev.dataTransfer?.setData('text/plain', JSON.stringify(<ComposerDragData>{
+      type: 'qo-move',
+      operationId: opId,
+      dragOffset: qubitDragOffset,
+      qubitsCovered: operation.getNumQubitsCovered()
+    }));
+    // ev.dataTransfer?.setDragImage(operationContainer.getElementsByTagName('img')[0], 0, 0);
   }
 
   /**
@@ -140,7 +140,7 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @returns
    */
   private _getDragData(ev: DragEvent): ComposerDragData | undefined {
-    const dataS = ev.dataTransfer?.getData('qo-json');
+    const dataS = ev.dataTransfer?.getData('text/plain');
     const data: ComposerDragData | null = dataS ? JSON.parse(dataS) : null;
     if(data && (data.type == 'qo-move' || data.type == 'qo-add')) {
       return data;
@@ -173,10 +173,8 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @returns
    */
   public handleDropzoneDragOver(ev: DragEvent, qubitIdx: number, slot: number) {
-    this.currentDragZoneOver = slot;
     ev.preventDefault();
-    const evData = this._getDragData(ev);
-    return evData ? this._isDropAllowed(qubitIdx - evData.dragOffset, evData.qubitsCovered) : false;
+    this.currentDragZoneOver = slot;
   }
 
   /**
@@ -184,8 +182,8 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
    * @param ev
    */
   public handleRemoveZoneDragOver(ev: DragEvent) {
-    this.currentDragZoneOver = -1;
     ev.preventDefault();
+    this.currentDragZoneOver = -1;
   }
 
   /**
@@ -198,19 +196,21 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
   public handleDropzoneDrop(ev: DragEvent, qubitIdx: number, slot: number) {
     ev.preventDefault();
     this.resetDragDrop();
+
     // get data from drop
     const evData = this._getDragData(ev);
     if(!evData) {
       return;
     }
 
+    // check if drop allowed
+    if(!this._isDropAllowed(qubitIdx - evData.dragOffset, evData.qubitsCovered)) {
+      return;
+    }
+
     // if moving operation
     if(evData.type == 'qo-move') {
-      // reset opacity
-      document.getElementById('op-'+evData.operationId)!.style.opacity = '1';
-      if(!this._isDropAllowed(qubitIdx - evData.dragOffset, evData.qubitsCovered)) {
-        return;
-      }
+      // remove and add operation at correct place
       const operation = this.editorService.circuit.getOperationById(evData.operationId!)!;
       this.editorService.circuit.removeOperation(evData.operationId!);
       this.editorService.circuit.addOperations([operation], qubitIdx - evData.dragOffset, slot);
@@ -243,7 +243,9 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
   /**
    * Reset everything if not dropped
    */
-  public handleDragEnd() {
+  public handleDragEnd(operationContainer: HTMLDivElement) {
+    operationContainer.style.zIndex = '100';
+    operationContainer.style.opacity = '1';
     this.resetDragDrop();
   }
 
@@ -265,6 +267,6 @@ export class ComposerMainComponent implements OnInit, OnDestroy {
     }
   }
 
-  cssRelValue = cssRelValue
+  cssRelValue = cssRelValue;
 
 }

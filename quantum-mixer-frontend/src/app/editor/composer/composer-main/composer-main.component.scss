@@ -124,3 +124,9 @@ $qubit-panel-width: 33%;
     width: $qubit-panel-width;
   }
 }
+
+img.operation {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

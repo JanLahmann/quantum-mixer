@@ -1,67 +1,67 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { EditorService } from '../../editor.service';
 import { ComposerCatalogueType, createOperations } from '../../model/composer-catalogue';
 import { cssRelValue } from 'src/app/common/utils';
 import { ComposerDragData } from '../../model/composer';
+import { Operation } from '../../model/operation';
 
 @Component({
   selector: 'app-composer-operation-catalogue',
   templateUrl: './composer-operation-catalogue.component.html',
   styleUrls: ['./composer-operation-catalogue.component.scss']
 })
-export class ComposerOperationCatalogueComponent {
+export class ComposerOperationCatalogueComponent implements OnInit {
 
   constructor(public editorService: EditorService) {
 
   }
 
-  ComposerCatalogueType = ComposerCatalogueType;
+  ngOnInit(): void {
+      Object.values(ComposerCatalogueType).map(value => {
+        const op = createOperations(value)[0];
+        const img = new Image();
+        img.src = op.png || '';
+        img.style.width = '50px';
+        this.catalogue.push({
+          type: value,
+          name: value,
+          img: img,
+          operation: op
+        })
+      })
+  }
+
+  public catalogue: {type: ComposerCatalogueType, name: string, img: HTMLImageElement, operation: Operation}[] = [];
 
   /**
    * Start dragging of buttons/icons to add new operations to the composer.
    * @param ev
    * @param catalogueType
    */
-  handleNewOperationDragStart(ev: DragEvent, catalogueType: ComposerCatalogueType) {
-
-    // init drag
+  handleNewOperationDragStart(ev: DragEvent, catalogueType: ComposerCatalogueType, container: HTMLDivElement) {
     this.editorService.isDragging = true;
-
-    // create new operation
-    const newOperation = createOperations(catalogueType)[0];
-    newOperation.whiteBackground = true;
-
-    if(ev.dataTransfer) {
-
-      // Clear the drag data cache (for all formats/types)
-      ev.dataTransfer.clearData();
-      ev.dataTransfer.effectAllowed = 'move';
-      // create preview
-      // The element needs to be visible, so we will add it to the view for 100ms
-      const element = document.getElementById('composer-newoperation-render');
-      element!.style.width = cssRelValue(newOperation.properties.relativeWidth);
-      element!.style.height = cssRelValue(newOperation.getNumQubitsCovered());
-      element?.classList.add('active');
-      element!.innerHTML = newOperation.svg!.svg();
-      ev.dataTransfer.setDragImage(element!, 0, 0);
-      setTimeout(() => {
-        element?.classList.remove('active');
-      }, 100)
-
-      // Set drag data
-      ev.dataTransfer.setData('qo-json', JSON.stringify(<ComposerDragData>{
-        type: 'qo-add',
-        catalogueType: catalogueType,
-        dragOffset: 0,
-        qubitsCovered: newOperation.getNumQubitsCovered()
-      }));
-    }
+    const item = this.catalogue.filter(i => i.type == catalogueType)[0];
+    ev.dataTransfer?.setData('text/plain', JSON.stringify(<ComposerDragData>{
+      type: 'qo-add',
+      catalogueType: catalogueType,
+      dragOffset: 0,
+      qubitsCovered: item.operation.getNumQubitsCovered()
+    }));
+    // hacky solution: add image to body
+    const div = document.createElement('div');
+    div.id = 'new-operation-preview';
+    div.appendChild(item.img);
+    div.style.position = "absolute";
+    div.style.top = "0px"; div.style.left= "-50px";
+    document.querySelector('body')?.appendChild(div);
+    ev.dataTransfer?.setDragImage(div, 0, 0);
   }
 
   /**
    * Stop dragging
    */
   handleDragEnd() {
+    document.getElementById('new-operation-preview')?.remove();
     this.editorService.isDragging = false;
   }
 }

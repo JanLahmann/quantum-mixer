@@ -19,6 +19,7 @@
           'flex-basis': cssRelValue(slot.relativeWidth)
         }">
         <div
+          #operationContainer
           *ngFor="let op of slot.operations"
           [id]="'op-'+op.operationId"
           class="composer-operations-operation"
@@ -29,12 +30,12 @@
             'width': cssRelValue(op.relativeWidth),
             'margin-left': cssRelValue(-op.relativeWidth/2)
           }"
-          [innerHTML]="op.operationSvg | sanitizeHtml"
           draggable="true"
-          (dragstart)="handleOperationDragStart($event, op.operationId)"
-          (dragend)="handleDragEnd()"
+          (dragstart)="handleOperationDragStart($event, op.operationId, operationContainer)"
+          (dragend)="handleDragEnd(operationContainer)"
           (click)="setActiveOperation(op.operationId)"
           >
+          <img class="operation" [src]="op.operationImg" (contextmenu)="$event.preventDefault()"/>
         </div>
         <div
           *ngFor="let qIdx of editorService.circuit.numQubits | asRange"

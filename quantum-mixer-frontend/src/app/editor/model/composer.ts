@@ -6,7 +6,7 @@ import { ComposerCatalogueType } from "./composer-catalogue"
 export interface ComposerSlotViewData {
   relativeWidth: number,
   operations: {
-    operationSvg?:    string,
+    operationImg:     string,
     operationId:      string,
     firstQubit:       number,
     numQubitsCovered: number,

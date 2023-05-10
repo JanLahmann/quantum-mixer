@@ -16,7 +16,3 @@ body {
   --qo-qubit-height: 50px;
 }
 
-// needs to be set here to avoid DOM shadowing
-.dragging-operation {
-  opacity: 0.3
-}

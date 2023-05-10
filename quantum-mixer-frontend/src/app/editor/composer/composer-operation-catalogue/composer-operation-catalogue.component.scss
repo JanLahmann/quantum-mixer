@@ -13,5 +13,11 @@
     text-align: center;
     background-color: lightblue;
     cursor: pointer;
+
+    img {
+      width: 1px;
+      height: auto;
+      display: block;
+    }
   }
 }
