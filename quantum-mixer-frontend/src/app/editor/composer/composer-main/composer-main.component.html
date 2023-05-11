@@ -47,11 +47,11 @@
         </div>
       </div>
       <div id="composer-newoperation-render" class="composer-operations-slot"></div>
-      <div class="composer-operations-slot" [ngClass]="{'drag-active': currentDragZoneOver == -2}">
+      <div class="composer-operations-slot" [ngClass]="{'drag-active': currentDragZoneOver == -2}" [ngStyle]="{'min-width': cssRelValue(3)}">
         <div
           *ngFor="let qIdx of editorService.circuit.numQubits | asRange"
           class="qubit-operations-drop-zone"
-          [ngStyle]="{'top': cssRelValue(qIdx), 'flex-basis': cssRelValue(3)}"
+          [ngStyle]="{'top': cssRelValue(qIdx), 'min-width': cssRelValue(3)}"
           (dragover)="handleDropzoneDragOver($event, qIdx, -2)"
           (drop)="handleDropzoneDrop($event, qIdx, -1)"
           >

@@ -18,7 +18,7 @@ export class ComposerOperationCatalogueComponent implements OnInit {
 
   ngOnInit(): void {
       Object.values(ComposerCatalogueType).map(value => {
-        const op = createOperations(value)[0];
+        const op = createOperations(value, true)[0];
         const img = new Image();
         img.src = op.png || '';
         img.style.width = '50px';
@@ -54,7 +54,7 @@ export class ComposerOperationCatalogueComponent implements OnInit {
     div.style.position = "absolute";
     div.style.top = "0px"; div.style.left= "-50px";
     document.querySelector('body')?.appendChild(div);
-    ev.dataTransfer?.setDragImage(div, 0, 0);
+    ev.dataTransfer?.setDragImage(div, 25, 25);
   }
 
   /**

@@ -164,7 +164,7 @@ export class Circuit {
     this._operations = data.operations.map((operationData, idx) => {
       return {
         slot: idx,
-        operation: Operation.fromData(operationData)
+        operation: Operation.fromData(operationData, false)
       }
     });
 

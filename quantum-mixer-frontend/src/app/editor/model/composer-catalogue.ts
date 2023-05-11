@@ -99,8 +99,8 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
 }
 
 
-export function createOperations(type: ComposerCatalogueType) {
+export function createOperations(type: ComposerCatalogueType, renderWithWhiteBackground: boolean = false) {
   const composerCatalogueItem = ComposerCatalogue[type];
-  return composerCatalogueItem.operations.map(operationData => Operation.fromData(operationData));
+  return composerCatalogueItem.operations.map(operationData => Operation.fromData(operationData, renderWithWhiteBackground));
 }
 

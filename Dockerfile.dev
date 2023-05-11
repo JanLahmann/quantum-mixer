@@ -1,0 +1,20 @@
+## STAGE: builder-frontend
+FROM registry.access.redhat.com/ubi8/nodejs-18 AS builder-frontend
+
+# Use yarn for installation
+RUN npm install -g yarn
+
+# Install dependencies for application
+COPY quantum-mixer-frontend/package.json quantum-mixer-frontend/yarn.lock ./
+RUN yarn install
+
+# Copy application code
+COPY quantum-mixer-frontend ./
+USER 0
+RUN chmod -R g+w *.json
+RUN chmod -R g+w *.js
+RUN chmod -R g+w src
+
+# Build application
+RUN ng analytics disable
+CMD ng serve --host 0.0.0.0 --port $PORT --disable-host-check

@@ -43,6 +43,8 @@ export interface OperationProperties {
   text: string;
   /** Relative width of main block */
   relativeWidth?: number;
+  /** Render with white background */
+  whiteBackground?: boolean;
 }
 
 export const OperationProperties: {[key in OperationType]: OperationProperties} = {
@@ -138,20 +140,6 @@ export interface OperationData {
   readonly parameterValues: string[]
 }
 
-
-// some constants for SVG creation, note that this only affects the relation
-/** Height of a qubit line. This is our main reference point */
-const QUBIT_HEIGHT = 100;
-/** Radius of control qubit (relative to 100) */
-const CONTROL_RADIUS = 20;
-/** Width of connection between control and target qubit (relative to 100) */
-const CONNECTION_WIDTH = 5;
-/** Padding for target blocks */
-const TARGET_PADDING = 5;
-/** Font size */
-const FONT_SIZE = 25;
-const FONT_SIZE_PARAMS = 10;
-
 export class Operation {
 
   public readonly type: OperationType;
@@ -183,7 +171,6 @@ export class Operation {
     return this.properties.relativeWidth || 1.0;
   }
 
-
   constructor(properties: OperationProperties) {
     // create id
     this.id   = uuidv4();
@@ -199,7 +186,7 @@ export class Operation {
         value: p.default
       }
     })
-    this.properties       = properties;
+    this.properties       = JSON.parse(JSON.stringify(properties));
 
     // initialize
     // first add all target qubits below each other.
@@ -370,7 +357,7 @@ export class Operation {
     const minQubit         = this.getFirstQubit();
     const numQubitsCovered = this.getNumQubitsCovered();
 
-    const renderer = new OperationRenderer(this.properties.relativeWidth || 1, numQubitsCovered);
+    const renderer = new OperationRenderer(this.properties.relativeWidth || 1, numQubitsCovered, -1, this.properties.whiteBackground);
 
     // add controls
     if(this._controlQubits.length > 0) {
@@ -425,9 +412,10 @@ export class Operation {
    * @param operationData
    * @returns
    */
-  public static fromData(operationData: OperationData) {
+  public static fromData(operationData: OperationData, renderWithWhiteBackground: boolean) {
     const properties = OperationProperties[operationData.type];
     const newOperation = new Operation(properties);
+    newOperation.properties.whiteBackground = renderWithWhiteBackground;
     newOperation.setQubits(operationData.targetQubits, operationData.controlQubits);
     operationData.parameterValues.map((value, idx) => {
       newOperation.setParameter(properties.parameters[idx].name, value);
