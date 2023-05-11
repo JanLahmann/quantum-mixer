@@ -15,6 +15,7 @@ import { MeasurementComponent } from './editor/measurement/measurement.component
 import { ButtonModule, GridModule, TilesModule, UIShellModule } from 'carbon-components-angular';
 import { HeaderComponent } from './header/header.component';
 import { UsecaseHomeComponent } from './usecase-home/usecase-home.component';
+import { DraggableDirective } from './common/draggable.directive';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { UsecaseHomeComponent } from './usecase-home/usecase-home.component';
     ComposerOperationCatalogueComponent,
     MeasurementComponent,
     HeaderComponent,
-    UsecaseHomeComponent
+    UsecaseHomeComponent,
+    DraggableDirective
   ],
   imports: [
     BrowserModule,
