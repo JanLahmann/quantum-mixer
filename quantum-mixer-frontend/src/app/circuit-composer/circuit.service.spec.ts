@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { EditorService } from './editor.service';
+import { CircuitService } from './circuit.service';
 
-describe('EditorService', () => {
-  let service: EditorService;
+describe('CircuitService', () => {
+  let service: CircuitService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(EditorService);
+    service = TestBed.inject(CircuitService);
   });
 
   it('should be created', () => {

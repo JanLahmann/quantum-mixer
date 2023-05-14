@@ -1,0 +1,124 @@
+$qubit-name-container-width: 50px;
+$qubit-line-height: 1px;
+
+.circuit-composer {
+  width: 100%;
+  position: relative;
+  display: flex;
+
+  .qubit-name-container {
+    flex: 0 0 $qubit-name-container-width;
+    position: relative;
+
+    .qubit-name {
+      width: $qubit-name-container-width;
+      height: var(--qo-qubit-height);
+      display: block;
+      position: relative;
+      line-height: var(--qo-qubit-height);
+      text-align: center;
+    }
+  }
+
+  .circuit-container {
+    flex: 1 1 auto;
+    position: relative;
+
+    .qubit-line-container {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      .qubit-line {
+        width: 100%;
+        height: var(--qo-qubit-height);
+        display: block;
+        position: relative;
+
+        .line {
+          width: 100%;
+          height: $qubit-line-height;
+          top: calc(50% - $qubit-line-height/2);
+          background-color: black;
+          position: relative;
+        }
+      }
+    }
+
+    .operations-container {
+      /* Fill space and make scrollable */
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      /* Show items as flex with gap */
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 10px;
+
+      .operations-slot {
+        flex: 0 0 var(--qo-qubit-height);
+        position: relative;
+
+        &.active {
+          border: 1px solid lightblue;
+        }
+
+        .operation-drop-zone {
+          width: 100%;
+          height: var(--qo-qubit-height);
+          left: 0;
+          position: absolute;
+        }
+
+        .operation {
+          left: 50%;
+          position: absolute;
+          display: block;
+          cursor: pointer;
+
+          &.active {
+            background-color: lightblue;
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+          }
+        }
+      }
+    }
+  }
+
+  .panel-container {
+    flex: 0 0 auto;
+    position: relative;
+    background-color: rgb(240, 240, 240);
+
+    .panel-remove-container {
+      width: calc(4*var(--qo-qubit-height));
+      max-width: 30vw;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      span {
+        flex: 0 0 auto;
+      }
+    }
+
+  }
+
+}
+

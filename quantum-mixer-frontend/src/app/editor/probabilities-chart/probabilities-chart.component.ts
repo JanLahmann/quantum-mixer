@@ -1,25 +1,30 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ChartConfiguration, Chart } from 'chart.js';
+import { ChartConfiguration, Chart, ChartDataset, ChartType, ChartOptions } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Unsubscribable } from 'rxjs';
-import { DeviceNames, DeviceType, EditorService } from '../editor.service';
 import { UsecaseService } from 'src/app/usecase.service';
 import { BaseChartDirective } from 'ng2-charts';
+import { CircuitService, DeviceType } from 'src/app/circuit-composer/circuit.service';
+
+const DeviceNames: {[key in DeviceType]: string} = {
+  [DeviceType.MOCK]: 'Mock Device',
+  [DeviceType.ANALYTICAL]: 'Analytical',
+  [DeviceType.QASM]: 'Simulated'
+}
 
 @Component({
   selector: 'app-probabilities-chart',
   templateUrl: './probabilities-chart.component.html',
   styleUrls: ['./probabilities-chart.component.scss']
 })
-export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
+export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
 
-  public showLegend = true;
   public plugins = [ChartDataLabels];
   private _changeSub: Unsubscribable | null = null;
 
   @ViewChild('chart') chart: BaseChartDirective | undefined;
 
-  constructor(public editorService: EditorService, private usecaseService: UsecaseService) {
+  constructor(public circuitService: CircuitService, private usecaseService: UsecaseService) {
   }
 
   async createLabels(bitConfiguration: string[]) {
@@ -32,7 +37,8 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
   private isInitial: boolean = true;
   ngOnInit() {
     Chart.register(ChartDataLabels);
-    this._changeSub = this.editorService.probabilities.subscribe(async res => {
+    this._changeSub = this.circuitService.probabilities.subscribe(async res => {
+      console.log(res);
       this.data = {
         labels: await this.createLabels(res.bits),
         datasets: Object.keys(res.results).map((key, i) => {
@@ -40,7 +46,9 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
           return {
             label: DeviceNames[<DeviceType>key],
             data: data,
-            hidden: !this.isInitial && !this.chart?.chart?.isDatasetVisible(i)
+            hidden: !this.isInitial && !this.chart?.chart?.isDatasetVisible(i),
+            barPercentage: 0.9,
+            barThickness: 'flex'
           }
         })
       }
@@ -54,16 +62,13 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
   }
 
   public options: ChartConfiguration<'bar'>['options'] = {
-    // font: {
-    //   family: "IBM Plex Sans",
-    //   size: 34
-    // },
     responsive: true,
     animation: {
       duration: 200
     },
+    indexAxis: 'y',
     scales: {
-      y: {
+      x: {
         display: true,
         min: 0,
         max: 1,
@@ -79,7 +84,7 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
           color: 'black'
         }
       },
-      x: {
+      y: {
         ticks: {
           font: {
             size: 14,
@@ -101,10 +106,9 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy {
         }
       },
       datalabels: {
-        anchor: 'center',
-        textAlign: 'center',
-        // align: 'top',
-        rotation: -90,
+        anchor: 'end',
+        //textAlign: 'start',
+        align: 'end',
         formatter: val => {
           const newVal = Math.round(val * 100);
           if(newVal == 0) {

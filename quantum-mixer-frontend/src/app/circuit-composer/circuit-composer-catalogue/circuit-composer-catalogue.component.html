@@ -1,0 +1,12 @@
+<div class="circuit-composer-catalogue">
+  <div
+    *ngFor="let item of catalogue"
+    class="catalogue-item"
+    appDraggable
+    [dragImage]="item.operation.png"
+    [dragImageSize]="{'width': 50}"
+    [dragElementOffset]="{'x': '-50%'}"
+    (dragstart)="handleNewOperationDragStart($event, item.type)">
+    {{item.name}}
+  </div>
+</div>

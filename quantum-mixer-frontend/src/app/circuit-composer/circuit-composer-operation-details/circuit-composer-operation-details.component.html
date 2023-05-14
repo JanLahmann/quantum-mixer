@@ -1,0 +1,56 @@
+<div class="operation-details">
+
+  <!-- Target Qubit Selection -->
+  <div *ngIf="operation" class="target-qubits-selection qubits-selection">
+    <div class="qubit-selection-description">
+      Target Qubits
+    </div>
+    <div *ngFor="let qubitIdx of circuitService.circuit.numQubits| asRange" class="qubit-selector">
+      <div
+        class="input-qubit-selector"
+        [ngClass]="{
+          'selected': operation.targetQubits.indexOf(qubitIdx) > -1 && tmpRemoved !== qubitIdx,
+          'deselected': tmpRemoved == qubitIdx
+        }"
+        (click)="handleTargetQubitClick(qubitIdx)"
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Control Qubit Selection -->
+  <div *ngIf="operation" class="control-qubits-selection qubits-selection">
+    <div class="qubit-selection-description">
+      Control Qubits
+    </div>
+    <div *ngFor="let qubitIdx of circuitService.circuit.numQubits| asRange" class="qubit-selector">
+      <div
+        class="input-qubit-selector"
+        [ngClass]="{
+          'selected': operation.controlQubits.indexOf(qubitIdx) > -1,
+          'disabled': operation.controlQubits.indexOf(qubitIdx) == -1 &&
+                      (
+                        operation.targetQubits.indexOf(qubitIdx) > -1 ||
+                        operation.controlQubits.length >= maxNumControlQubits
+                      )
+        }"
+        (click)="handleControlQubitClick(qubitIdx)"
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Parameters -->
+  <div class="operation-parameters">
+    <p>Parameters</p>
+    <div *ngFor="let parameter of parameters; let i = index">
+      <ibm-combo-box
+					[label]="parameter.name"
+					[items]="parameter.options"
+					(selected)="setParameter(parameter.name, $event)">
+					<ibm-dropdown-list></ibm-dropdown-list>
+				</ibm-combo-box>
+    </div>
+  </div>
+
+</div>

@@ -16,3 +16,16 @@ body {
   --qo-qubit-height: 50px;
 }
 
+.autocomplete-dropdown .bx--dropdown {
+  height: 0;
+  margin-top: -5px;
+  outline: none;
+  border: 0;
+  padding: 0;
+  margin: 0 0 0 0;
+  outline-offset: 0;
+
+  button {
+    display: none;
+  }
+}

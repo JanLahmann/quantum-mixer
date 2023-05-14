@@ -1,17 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Circuit } from './model/circuit';
+import { ComposerSlotViewData, ComposerViewData } from './model/composer';
 import { ReplaySubject } from 'rxjs';
 
 export enum DeviceType {
   ANALYTICAL = 'analytical',
   MOCK       = 'mock',
   QASM       = 'qasm'
-}
-
-export const DeviceNames: {[device in DeviceType]: string} = {
-  [DeviceType.ANALYTICAL]: 'Analytical',
-  [DeviceType.MOCK]: 'Mock Device',
-  [DeviceType.QASM]: 'QASM Simulator'
 }
 
 export interface ProbabilitiesResponse {
@@ -30,20 +25,61 @@ export interface MeasurementResponse {
 @Injectable({
   providedIn: 'root'
 })
-export class EditorService {
+export class CircuitService {
 
-  public isDragging: boolean = false;
   public readonly circuit: Circuit = new Circuit();
+
+  public viewData: ComposerViewData | undefined;
   public probabilities: ReplaySubject<ProbabilitiesResponse> = new ReplaySubject();
 
   constructor() {
     this.circuit.change.subscribe(_ => {
+      this.buildViewData();
       this.fetchProbabilities();
     })
   }
 
+  /**
+   * Rebuild view data
+   */
+  private buildViewData() {
+
+    // init data structure
+    const newViewData: ComposerViewData = {
+      relativeWidth: 0,
+      slots: []
+    }
+    // get number of slots
+    const slots = this.circuit.operations.length > 0 ? Math.max(...this.circuit.operations.map(op => op.slot)) : 0;
+    // loop slots
+    for(let slot = 0; slot <= slots; slot++) {
+      // get operations
+      const slotOperations = this.circuit.getOperationsForSlot(slot);
+      const slotViewData: ComposerSlotViewData = {
+        // get relative width of slot as max of relative width of operations
+        relativeWidth: slotOperations.length > 0 ? Math.max(...slotOperations.map(op => op.relativeWidth)) : 0,
+        // loop operations
+        operations: slotOperations.map(op => {
+          const opImg = op.png || '';
+          return {
+            operationId: op.id,
+            operationImg: opImg,
+            firstQubit: op.getFirstQubit(),
+            numQubitsCovered: op.getNumQubitsCovered(),
+            relativeWidth: op.relativeWidth
+          }
+        })
+      }
+      newViewData.slots.push(slotViewData);
+    }
+
+    newViewData.relativeWidth = newViewData.slots.map(s => s.relativeWidth).reduce((ps, s) => ps + s, 0);
+    this.viewData = newViewData;
+  }
+
+
   private _bufferedRequestTimeout: any = null;
-  public fetchProbabilities(): Promise<void> {
+  public async fetchProbabilities(): Promise<void> {
     return new Promise((resolve, reject) => {
       clearTimeout(this._bufferedRequestTimeout);
       this._bufferedRequestTimeout = setTimeout(() => {
@@ -65,7 +101,7 @@ export class EditorService {
     })
   }
 
-  public measure(numShots: number): Promise<MeasurementResponse> {
+  public async measure(numShots: number): Promise<MeasurementResponse> {
     return new Promise((resolve, reject) => {
       fetch(`/api/quantum/measurements?shots=${numShots}`, {
         method: 'POST',
@@ -82,6 +118,5 @@ export class EditorService {
       })
     })
   }
-
 
 }

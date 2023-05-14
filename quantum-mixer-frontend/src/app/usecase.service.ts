@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CircuitData } from './editor/model/circuit';
+import { CircuitData } from './circuit-composer/model/circuit';
 
 export interface UsecaseData {
   name: string,

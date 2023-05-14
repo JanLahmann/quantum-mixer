@@ -1,0 +1,62 @@
+$input-selector-size: 16px;
+$padding: 20px;
+
+.operation-details {
+  position: relative;
+  display: flex;
+  padding: 0 $padding 0 $padding;
+
+  .qubits-selection {
+    flex: 0 0 auto;
+    position: relative;
+
+    .qubit-selector {
+      height: var(--qo-qubit-height);
+      display: block;
+      position: relative;
+      padding: 0 $padding 0 $padding;
+
+      .input-qubit-selector {
+        top: calc(var(--qo-qubit-height)/2 - $input-selector-size/2);
+        width: $input-selector-size;
+        height: $input-selector-size;
+        position: relative;
+        display: block;
+        border-radius: 50%;
+        border: 1px solid black;
+        cursor: pointer;
+
+        &.selected {
+          background-color: black;
+        }
+
+        &.deselected {
+          border-width: 3px;
+        }
+
+        &.disabled {
+          background-color: lightgray;
+          cursor: not-allowed
+        }
+      }
+    }
+
+  }
+
+  .qubit-selection-description {
+    position: absolute;
+    top: calc(50% - 0.5em);
+    left: calc(-1.25*var(--qo-qubit-height) + 0.8em);
+    transform: rotate(-90deg);
+    transform-origin: 50%;
+    width: calc(2.5*var(--qo-qubit-height));
+    font-size: 1em;
+    text-align: center;
+  }
+
+  .autocomplete-dropdown .bx--dropdown {
+    height: 0 !important;
+    margin-top: -5px;
+  }
+}
+

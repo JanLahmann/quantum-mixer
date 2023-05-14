@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { EditorService } from '../editor.service';
 import { UsecaseService } from 'src/app/usecase.service';
+import { CircuitService } from 'src/app/circuit-composer/circuit.service';
 
 @Component({
   selector: 'app-measurement',
@@ -13,7 +13,7 @@ export class MeasurementComponent implements OnInit {
   public data: {bit: string, icon: string, display: string}[] = [];
   public numMeasurements: number = 1;
 
-  constructor(private editorService: EditorService, private usecaseService: UsecaseService) {
+  constructor(private circuitService: CircuitService, private usecaseService: UsecaseService) {
 
   }
 
@@ -30,7 +30,7 @@ export class MeasurementComponent implements OnInit {
     this.data = [];
     this.status = 'loading';
     try {
-      const data = await this.editorService.measure(this.numMeasurements);
+      const data = await this.circuitService.measure(this.numMeasurements);
       data.results.map((result, i) => {
         setTimeout(() => {
           this.data.push({
@@ -57,7 +57,7 @@ export class MeasurementComponent implements OnInit {
     this.status = 'ordered';
     setTimeout(() => {
       this.status = 'ready';
-      this.editorService.circuit.reset();
+      this.circuitService.circuit.reset();
     }, 5000)
   }
 }

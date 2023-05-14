@@ -35,7 +35,9 @@ export interface OperationProperties {
     /** Parameter name */
     name: string,
     /** Parameter value. Supports e.g. `pi/2`, therefore a string */
-    default: string
+    default: string,
+    /** Options to choose from */
+    options: string[]
   }[],
   /** Color of operation in composer */
   color: string;
@@ -100,7 +102,8 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
     numControlQubits: [0, 1],
     parameters: [{
       name: 'lambda',
-      default: 'pi/2'
+      default: 'pi/2',
+      options: ['pi/4', 'pi/2', '3*pi/4', 'pi']
     }],
     color: 'rgb(239, 184, 230)',
     text: 'RY',

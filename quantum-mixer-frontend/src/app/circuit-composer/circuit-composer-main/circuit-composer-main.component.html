@@ -1,0 +1,94 @@
+<div class="circuit-composer">
+  <!-- Qubit Names -->
+  <div class="qubit-name-container">
+    <div *ngFor="let qIdx of circuitService.circuit.numQubits | asRange" class="qubit-name">
+      q{{qIdx}}
+    </div>
+  </div>
+  <div class="circuit-container">
+    <!-- Qubit Lines -->
+    <div class="qubit-line-container">
+      <div *ngFor="let qIdx of circuitService.circuit.numQubits | asRange" class="qubit-line">
+        <div class="line"></div>
+      </div>
+    </div>
+    <!-- Qubit Operations -->
+    <div class="operations-container">
+      <!-- Qubit Slots -->
+      <div
+        *ngFor="let slot of circuitService.viewData?.slots; let slotIdx = index"
+        class="operations-slot"
+        [ngStyle]="{
+          'flex-basis': cssRelValue(slot.relativeWidth)
+        }"
+        [ngClass]="{
+          'active': activeSlot == slotIdx
+        }"
+        >
+        <!-- Qubit Drop Zones -->
+        <div
+          *ngFor="let qIdx of circuitService.circuit.numQubits | asRange"
+          data-drop="slot"
+          class="operation-drop-zone"
+          [ngStyle]="{'top': cssRelValue(qIdx)}"
+          (drop)="handleDropzoneDrop($event, qIdx, slotIdx)"
+          (dragenter)="activeSlot = slotIdx"
+          >
+        </div>
+        <div
+          #operation
+          *ngFor="let op of slot.operations"
+          class="operation"
+          [ngClass]="{'active': op.operationId == activeOperation?.id}"
+          [ngStyle]="{
+            'top': cssRelValue(op.firstQubit),
+            'height': cssRelValue(op.numQubitsCovered),
+            'width': cssRelValue(op.relativeWidth),
+            'margin-left': cssRelValue(-op.relativeWidth/2),
+          }"
+          appDraggable
+          [dragImage]="op.operationImg"
+          [dragImageSize]="{'width': op.relativeWidth*qubitHeight}"
+          [dragElementOffset]="'original'"
+          (dragstart)="handleOperationDragStart($event, op.operationId)"
+          (dragend)="handleOperationDragEnd()"
+          (mousedown)="$event.preventDefault()"
+          (clicked)="toggleActiveOperation(op.operationId)"
+          >
+          <img class="operation-image" [src]="op.operationImg"/>
+        </div>
+      </div>
+
+      <!-- Dropzone behind all operations -->
+      <div
+        class="operations-slot"
+        [ngStyle]="{
+          'flex-basis': cssRelValue(4)
+        }"
+        [ngClass]="{
+          'active': activeSlot == -1
+        }"
+        >
+        <!-- Qubit Drop Zones -->
+        <div
+          *ngFor="let qIdx of circuitService.circuit.numQubits | asRange"
+          data-drop="slot"
+          class="operation-drop-zone"
+          [ngStyle]="{'top': cssRelValue(qIdx)}"
+          (drop)="handleDropzoneDrop($event, qIdx, -1)"
+          (dragenter)="activeSlot = -1"
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Additional Panel -->
+  <div class="panel-container">
+    <div *ngIf="showRemove" class="panel-remove-container" data-drop="remove" (drop)="handleRemovezoneDrop($event)" [ngStyle]="{height: cssRelValue(this.circuitService.circuit.numQubits)}">
+      <span>Remove</span>
+    </div>
+    <div *ngIf="activeOperation" class="panel-operation-info-container">
+      <app-circuit-composer-operation-details [operation]="activeOperation"></app-circuit-composer-operation-details>
+    </div>
+  </div>
+</div>
