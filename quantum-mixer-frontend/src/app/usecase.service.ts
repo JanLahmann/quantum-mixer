@@ -76,4 +76,13 @@ export class UsecaseService {
     })
   }
 
+  public getCircuitById(id: string): CircuitData | null {
+    const circuit = this.data?.initialCircuits.map(ic => ic.circuits).flat().filter(c => c.id == id);
+    if(circuit && circuit.length > 0) {
+      return circuit[0].data
+    } else {
+      return null;
+    }
+  }
+
 }

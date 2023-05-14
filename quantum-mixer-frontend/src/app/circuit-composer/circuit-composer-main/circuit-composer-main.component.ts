@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CircuitService } from '../circuit.service';
 import { cssRelValue } from 'src/app/common/utils';
 import { Operation } from '../model/operation';
-import { ComposerCatalogueType, createOperations } from '../model/composer-catalogue';
+import { createOperations } from '../model/composer-catalogue';
 import { ComposerDragData } from '../model/composer';
 
 @Component({
@@ -18,17 +18,8 @@ export class CircuitComposerMainComponent {
   public showRemove: boolean = false;
 
   constructor(public circuitService: CircuitService) {
-
     // store value of --qo-qubit-height
     this.qubitHeight = +getComputedStyle(document.documentElement).getPropertyValue('--qo-qubit-height').replace('px', '');
-
-
-    setTimeout(() => {
-      const ccnot = createOperations(ComposerCatalogueType.CCNOT);
-      const ry = createOperations(ComposerCatalogueType.RY)
-      this.circuitService.circuit.addOperations(ccnot, 0)
-      this.circuitService.circuit.addOperations(ry, 0)
-    })
   }
 
   cssRelValue = cssRelValue;
