@@ -1,0 +1,76 @@
+id: qoffee
+name: QoffeeMaker
+description: QoffeeMaker
+bitMapping:
+  '000':
+    name: Tea
+    icon: ''
+    key: NotImplemented
+  '001':
+    name: Hot Chocolate
+    icon: ''
+    key: ConsumerProducts.CoffeeMaker.Program.Beverage.MilkFroth
+  '010':
+    name: Espresso
+    icon: ''
+    key: ConsumerProducts.CoffeeMaker.Program.Beverage.Espresso
+    options:
+      ConsumerProducts.CoffeeMaker.Option.FillQuantity: 50
+  '011':
+    name: Coffee
+    icon: ''
+    key: ConsumerProducts.CoffeeMaker.Program.Beverage.Coffee
+  '100':
+    name: Cappucino
+    icon: ''
+    key: ConsumerProducts.CoffeeMaker.Program.Beverage.Cappuccino
+  '101':
+    name: Latte Macchiato
+    icon: ''
+    key: ConsumerProducts.CoffeeMaker.Program.Beverage.LatteMacchiato
+  '110':
+    name: Viennese Melange
+    icon: ''
+    key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.WienerMelange
+  '111':
+    name: Americano
+    icon: ''
+    key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Americano
+numQubits: 3
+circuitsCatalogue:
+  - name: From Scratch
+    items:
+    - id: empty
+      name: Empty
+      description: Start from Scratch
+      data:
+        numQubits: 3
+        operations: []
+  - name: Starter
+    items:
+    - id: superposition
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+numMeasurements:
+  min: 1
+  max: 1
+  default: 1
+loginRequired: true

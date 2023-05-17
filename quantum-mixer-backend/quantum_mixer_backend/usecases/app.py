@@ -1,14 +1,25 @@
+import os
 from fastapi import FastAPI
-from .utils import get_return_type
-from .usecase_abstract import AbstractUsecase, OrderData
-from .usecase import usecase
+from .qoffee import QoffeeUsecase
+from .usecase_data import UsecaseData
 
-app = FastAPI()
+USECASES = [
+    QoffeeUsecase.from_file(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qoffee', 'usecase.yml')
+    )
+]
 
-@app.get('/data')
-async def get_usecase_data() -> get_return_type(AbstractUsecase.get_data):
-    return usecase.get_data()
+def set_endpoints(app: FastAPI, prefix: str):
 
-@app.post('/order')
-async def place_order(data: OrderData) -> get_return_type(AbstractUsecase.order):
-    return usecase.order(data)
+    usecase_data = []
+
+    for usecase in USECASES:
+        # create overview
+        overview = usecase.get_data()
+        usecase_data.append(overview)
+        # append endpoints
+        usecase.set_endpoints(app, '{}/{}'.format(prefix, overview.id))
+        
+    @app.get('{}'.format(prefix))
+    def get_usecases() -> list[UsecaseData]:
+        return usecase_data

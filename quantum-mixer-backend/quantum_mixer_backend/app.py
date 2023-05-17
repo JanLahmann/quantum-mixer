@@ -1,8 +1,12 @@
+import dotenv
+
+dotenv.load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .frontend import app as frontend_app
-from .quantum import app as quantum_app
-from .usecases import app as usecase_app
+from .quantum import build as build_quantum_app
+from .usecases import set_endpoints as set_usecase_endpoints
 
 app = FastAPI()
 
@@ -15,19 +19,9 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# mount quantum app
-app.mount(
-    path='/api/quantum',
-    app=quantum_app,
-    name='Qiskit API'
-)
-
-# mount usecase
-app.mount(
-    path='/api/usecase',
-    app=usecase_app,
-    name='Usecase API'
-)
+# add endpoints
+build_quantum_app(app, '/api/quantum')
+set_usecase_endpoints(app, '/api/usecase')
 
 # mount singlepage application
 app.mount(
