@@ -1,0 +1,11 @@
+<div *ngFor="let section of usecaseService.usecase?.circuitsCatalogue" class="section">
+  <h1>{{ section.name }}</h1>
+  <div ibmRow [condensed]="false" [rightGutter]="false">
+    <div *ngFor="let circuit of section.items" ibmCol [columnNumbers]="{'lg': 4}" class="catalogue-item-container">
+      <ibm-clickable-tile [route]="[usecaseService.usecase?.id, 'editor', circuit.id]" class="catalogue-item" [ngClass]="{'primary': circuit.isPrimary}">
+				<h3>{{circuit.name}}</h3>
+        <img src="/assets/thin-long-arrow-right-icon.png"/>
+			</ibm-clickable-tile>
+    </div>
+  </div>
+</div>

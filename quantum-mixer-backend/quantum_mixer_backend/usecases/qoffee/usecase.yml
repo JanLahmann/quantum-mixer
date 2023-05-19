@@ -2,37 +2,38 @@ id: qoffee
 name: QoffeeMaker
 description: QoffeeMaker
 bitMapping:
-  '000':
+  - bits: '000'
     name: Tea
     icon: ''
     key: NotImplemented
-  '001':
+  - bits: '001'
     name: Hot Chocolate
     icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.MilkFroth
-  '010':
+  - bits: '010'
     name: Espresso
     icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Espresso
     options:
-      ConsumerProducts.CoffeeMaker.Option.FillQuantity: 50
-  '011':
+    - key: ConsumerProducts.CoffeeMaker.Option.FillQuantity
+      value: 50
+  - bits: '011'
     name: Coffee
     icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Coffee
-  '100':
+  - bits: '100'
     name: Cappucino
     icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Cappuccino
-  '101':
+  - bits: '101'
     name: Latte Macchiato
     icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.LatteMacchiato
-  '110':
+  - bits: '110'
     name: Viennese Melange
     icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.WienerMelange
-  '111':
+  - bits: '111'
     name: Americano
     icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Americano
@@ -46,9 +47,157 @@ circuitsCatalogue:
       data:
         numQubits: 3
         operations: []
+      isPrimary: true
   - name: Starter
     items:
     - id: superposition
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+    - id: superposition2
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+    - id: superposition3
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+    - id: superposition4
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+    - id: superposition5
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+    - id: superposition6
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+    - id: superposition7
+      name: Superposition
+      description: From Superposition
+      data:
+        numQubits: 3
+        operations:
+        - id: <>
+          type: h
+          targetQubits: [0]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [1]
+          controlQubits: []
+          parameterValues: []
+        - id: <>
+          type: h
+          targetQubits: [2]
+          controlQubits: []
+          parameterValues: []
+    - id: superposition8
       name: Superposition
       description: From Superposition
       data:

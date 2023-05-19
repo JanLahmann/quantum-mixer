@@ -1,16 +1,29 @@
 <p *ngIf="status == 'ready'">
   Do a measurement of the circuit to retrieve a classic value.
 </p>
-<p *ngIf="data && data.length > 0 && status != 'ordered'">
+
+<button *ngIf="status == 'ready' || status == 'measured' || status == 'loading'" [ibmButton]="status == 'ready' ? 'primary' : 'secondary'" [disabled]="status == 'loading'" (click)="measure()" [isExpressive]="true">Measure</button>
+
+<p *ngIf="status == 'measured'">
   The measurement yielded:
-  <span *ngFor="let res of data" class="result">{{res.display}}</span>
 </p>
-<p *ngIf="status == 'ordered'">
+
+<ul *ngIf="status == 'measured'" class="result-list">
+  <li *ngFor="let res of data" class="result">
+    <img *ngIf="res.icon" [src]="res.icon">
+    {{res.display}}
+  </li>
+</ul>
+
+<button *ngIf="status == 'measured'" ibmButton="primary" (click)="order()" [isExpressive]="true">Order</button>
+
+<p *ngIf="status == 'ordered'" class="with-img">
+  <img src="/assets/thumbs-up-line-icon.png"/>
   The order has been placed. Thank you very much for taking time.
 </p>
 
-<ibm-button-set *ngIf="status != 'ordered'">
-  <button [ibmButton]="status == 'ready' ? 'primary' : 'secondary'" [disabled]="status == 'loading'" (click)="measure()" [isExpressive]="true">Measure</button>
-  <button [ibmButton]="status == 'measured' ? 'primary' : 'secondary'" [disabled]="status != 'measured'" (click)="order()" [isExpressive]="true">Order</button>
-</ibm-button-set>
-
+<p *ngIf="status == 'error'" class="with-img">
+  <img src="/assets/close-round-line-icon.png"/>
+  The order has not been placed.<br/>
+  Error: {{ error }}
+</p>

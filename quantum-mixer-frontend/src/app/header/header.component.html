@@ -1,12 +1,11 @@
-<ibm-header [name]="this.usecaseService.data?.name || ''">
+<ibm-header [name]="this.usecaseService.usecase?.name || ''">
 	<ibm-header-navigation>
-		<ibm-header-item routerLink="/">Home</ibm-header-item>
-    <ibm-header-item routerLink="/editor">Editor</ibm-header-item>
+		<ibm-header-item routerLink="/{{usecaseService.usecase?.id}}">Home</ibm-header-item>
     <ibm-header-item href="https://www.ibm.com/quantum" target="_blank">IBM Quantum</ibm-header-item>
 	</ibm-header-navigation>
-	<!-- <ibm-header-global>
-		<ibm-header-action title="action">
-			<svg ibmIcon="notification" size="20"></svg>
-		</ibm-header-action>
-	</ibm-header-global> -->
+	<ibm-header-global>
+    <ibm-header-action routerLink="/">
+      H
+    </ibm-header-action>
+	</ibm-header-global>
 </ibm-header>

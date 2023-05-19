@@ -2,7 +2,7 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { ChartConfiguration, Chart, ChartDataset, ChartType, ChartOptions } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Unsubscribable } from 'rxjs';
-import { UsecaseService } from 'src/app/usecase.service';
+import { UsecaseService } from '../../usecase/usecase.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { CircuitService, DeviceType } from 'src/app/circuit-composer/circuit.service';
 
@@ -27,18 +27,21 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
   constructor(public circuitService: CircuitService, private usecaseService: UsecaseService) {
   }
 
-  async createLabels(bitConfiguration: string[]) {
-    await this.usecaseService.initialLoadingPromise;
-    return bitConfiguration.map(config => {
-      return [this.usecaseService.data?.bitMapping[config].name, config];
+  async createLabels(bitConfigurations: string[]) {
+    return bitConfigurations.map(bitConfig => {
+      return [this.usecaseService.getBitMapping(bitConfig)?.name, bitConfig]
     })
   }
 
-  private isInitial: boolean = true;
   ngOnInit() {
     Chart.register(ChartDataLabels);
     this._changeSub = this.circuitService.probabilities.subscribe(async res => {
-      console.log(res);
+      const isHidden: {[key: number]: boolean} = {};
+      // get view status from previous
+      this.chart?.chart?.data.datasets.map((dataset, i) => {
+        isHidden[i] = !this.chart?.chart?.isDatasetVisible(i);
+      })
+      // set data
       this.data = {
         labels: await this.createLabels(res.bits),
         datasets: Object.keys(res.results).map((key, i) => {
@@ -46,13 +49,12 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
           return {
             label: DeviceNames[<DeviceType>key],
             data: data,
-            hidden: !this.isInitial && !this.chart?.chart?.isDatasetVisible(i),
+            hidden: !!isHidden[i],
             barPercentage: 0.9,
             barThickness: 'flex'
           }
         })
       }
-      this.isInitial = false;
     })
   }
 
@@ -127,8 +129,8 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
   }
 
   ngOnDestroy(): void {
-      if(this._changeSub) {
-        this._changeSub.unsubscribe();
-      }
+    if(this._changeSub) {
+      this._changeSub.unsubscribe();
+    }
   }
 }

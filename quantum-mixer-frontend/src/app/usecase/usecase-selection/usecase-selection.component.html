@@ -1,0 +1,8 @@
+<div ibmRow>
+  <div *ngFor="let usecase of usecaseService.usecases" ibmCol [columnNumbers]="{'lg': 4, 'md': 6}">
+    <a routerLink="/{{usecase.id}}">
+      <h2>{{usecase.name}}</h2>
+    </a>
+    <a style="margin-top: 30px; display: block" routerLink="/{{usecase.id}}/preferences">Preferences</a>
+  </div>
+</div>

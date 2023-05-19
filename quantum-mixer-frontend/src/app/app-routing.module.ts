@@ -1,19 +1,37 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PageEditorComponent } from './editor/page-editor/page-editor.component';
-import { UsecaseHomeComponent } from './usecase-home/usecase-home.component';
+import { UsecaseHomeComponent } from './usecase/usecase-home/usecase-home.component';
+import { UsecaseSelectionComponent } from './usecase/usecase-selection/usecase-selection.component';
+import { UsecasePreferencesComponent } from './usecase/usecase-preferences/usecase-preferences.component';
+import { UsecaseMainComponent } from './usecase/usecase-main/usecase-main.component';
 
 const routes: Routes = [
   {
-    component: PageEditorComponent,
-    path: 'editor/:catalogueid'
+    component: UsecaseMainComponent,
+    path: ':usecase',
+    children: [
+      {
+        component: UsecasePreferencesComponent,
+        path: 'preferences',
+      },
+      {
+        component: PageEditorComponent,
+        path: 'editor'
+      },
+      {
+        component: PageEditorComponent,
+        path: 'editor/:catalogue'
+      },
+      {
+        component: UsecaseHomeComponent,
+        path: '',
+        pathMatch: 'full'
+      }
+    ]
   },
   {
-    component: PageEditorComponent,
-    path: 'editor'
-  },
-  {
-    component: UsecaseHomeComponent,
+    component: UsecaseSelectionComponent,
     path: '',
     pathMatch: 'full'
   }

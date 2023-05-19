@@ -121,12 +121,16 @@ export class Circuit {
     }
   }
 
+  private _changeBuffer: any = null;
   /**
    * Trigger internal change, rerender and publish event.
    */
   private _notifyChange() {
-    this._updateSlots();
-    this.change.next();
+    clearTimeout(this._changeBuffer);
+    this._changeBuffer = setTimeout(() => {
+      this._updateSlots();
+      this.change.next();
+    }, 100)
   }
 
   /**

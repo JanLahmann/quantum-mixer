@@ -1,25 +1,30 @@
 from typing import Optional, Annotated, Union
-from enum import Enum
 import json
 import os
+from pydantic import BaseModel
 from fastapi import FastAPI, Request, HTTPException
 from starlette.responses import RedirectResponse
 from requests_oauthlib import OAuth2Session
 from quantum_mixer_backend.usecases.usecase import Usecase
 from quantum_mixer_backend.usecases.usecase_data import OrderData, UsecaseData, UsecasePreferences, UsecaseBitMappingItem
-from quantum_mixer_backend.usecases.utils import handle_response, get_return_type
+from quantum_mixer_backend.usecases.utils import handle_response, get_return_type, StrEnum
+
+class QoffeeUsecaseDrinkOptions(BaseModel):
+    key: Annotated[str, 'Key for option']
+    value: Annotated[str, 'Value for option']
 
 class QoffeeUsecaseBitmappingItem(UsecaseBitMappingItem):
     key: Annotated[str, 'Key for Homeconnect API']
-    options: Annotated[Optional[dict[str, Union[str, int]]], 'Options for Homeconnect API']
+    options: Annotated[Optional[list[QoffeeUsecaseDrinkOptions]], 'Options for Homeconnect API']
 
 class QoffeeUsecasePreferences(UsecasePreferences):
     selectedMachineHaId: Optional[str]
-    bitMapping: Annotated[dict[str, QoffeeUsecaseBitmappingItem], "Mapping of bit configurations to products/items"]
+    bitMapping: Annotated[list[QoffeeUsecaseBitmappingItem], "Mapping of bit configurations to products/items"]
 
 class QoffeeUsecase(Usecase):
 
     preferences: QoffeeUsecasePreferences
+    post_login_redirect: Union[str, None] = None
 
     def __init__(self, data: UsecaseData, preferences: QoffeeUsecasePreferences):
         super().__init__(data, preferences)
@@ -43,7 +48,7 @@ class QoffeeUsecase(Usecase):
         )
     
     def set_token(self, token):
-        print(token)
+        self.data.loginRequired = False
         self.token = token
 
     def get_preferences(self) -> QoffeeUsecasePreferences:
@@ -53,7 +58,7 @@ class QoffeeUsecase(Usecase):
         # get all available coffee machines
         coffee_machines = self.get_coffee_machines()
         # create a new pydantic model and allow selectedMachineHaId to be only one of the coffee machines
-        CoffeeMachines = Enum('CoffeeMachines', {'cm{}'.format(i): x['haId'] for i, x in enumerate(coffee_machines)})
+        CoffeeMachines = StrEnum('CoffeeMachines', {'cm{}'.format(i): x['haId'] for i, x in enumerate(coffee_machines)})
         class QoffeeUsecasePreferences_(QoffeeUsecasePreferences):
             selectedMachineHaId: CoffeeMachines
         # return schema
@@ -109,20 +114,25 @@ class QoffeeUsecase(Usecase):
         super().set_endpoints(app, prefix)
 
         @app.get('{}/auth/login'.format(prefix))
-        def login() -> RedirectResponse:
+        def login(redirect: str = '') -> RedirectResponse:
             authorization_url, _ = self.session.authorization_url(
                 '{}/security/oauth/authorize'.format(self.base_url),
             )
+            self.post_login_redirect = redirect
             return RedirectResponse(authorization_url)
 
         @app.get('{}/auth/callback'.format(prefix))
-        def handle_authorization_callback(request: Request, code: str = ''): 
+        def handle_authorization_callback(request: Request, code: str = '') -> RedirectResponse: 
             token = self.session.fetch_token(
                 '{}/security/oauth/token'.format(self.base_url),
                 client_secret=self.client_secret,
                 authorization_response=request.url._url.replace('http://', 'https://')
             )
             self.set_token(token)
+            coffee_machines = self.get_coffee_machines()
+            if len(coffee_machines) > 0:
+                self.preferences.selectedMachineHaId = coffee_machines[0]['haId']
+            return RedirectResponse(self.post_login_redirect)
 
         @app.post('{}/order'.format(prefix))
         async def handle_order(data: OrderData) -> get_return_type(self.handle_order):
@@ -132,14 +142,16 @@ class QoffeeUsecase(Usecase):
         if len(data.items) != 1:
             raise RuntimeError("Unable to process other than 1 item, got {}".format(len(data.items)))
 
-        drink_data    = self.preferences.bitMapping[data.items[0]]
-        drink_key     = drink_data.key
-        drink_options = [] if drink_data.options is None else [{'key': key, 'value': drink_data.options[key]} for key in drink_data.options.keys()]
-        print(drink_options)
+        drink_data = next(
+            filter(lambda x: x.bits == data.items[0], self.preferences.bitMapping)
+        )
+        drink_data_key     = drink_data.key
+        drink_data_options = [] if drink_data.options is None else list(map(lambda x: x.dict(), drink_data.options))
+
         self.fetch_put('/api/homeappliances/{}/programs/active'.format(self.preferences.selectedMachineHaId), {
             'data': {
-                'key': drink_key,
-                'options': drink_options
+                'key': drink_data_key,
+                'options': drink_data_options
             }
         })
 

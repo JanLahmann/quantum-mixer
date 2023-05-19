@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Circuit } from './model/circuit';
 import { ComposerSlotViewData, ComposerViewData } from './model/composer';
 import { ReplaySubject } from 'rxjs';
+import { API_BASE_URL } from '../api';
 
 export enum DeviceType {
   ANALYTICAL = 'analytical',
@@ -78,32 +79,25 @@ export class CircuitService {
   }
 
 
-  private _bufferedRequestTimeout: any = null;
-  public async fetchProbabilities(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      clearTimeout(this._bufferedRequestTimeout);
-      this._bufferedRequestTimeout = setTimeout(() => {
-        fetch('/api/quantum/probabilities', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.circuit.export())
-        }).then(async res => {
-          const data = await res.json();
-          this.probabilities.next(<any>data);
-          resolve();
-        }, error => {
-          console.error(`Error fetching probabilities from server`, error);
-          reject(error);
-        })
-      }, 200);
-    })
+  private async fetchProbabilities(): Promise<void> {
+    fetch(`${API_BASE_URL}/api/quantum/probabilities`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.circuit.export())
+    }).then(async res => {
+      const data = await res.json();
+      this.probabilities.next(<any>data);
+    }, error => {
+      console.error(`Error fetching probabilities from server`, error);
+    });
+
   }
 
   public async measure(numShots: number): Promise<MeasurementResponse> {
     return new Promise((resolve, reject) => {
-      fetch(`/api/quantum/measurements?shots=${numShots}`, {
+      fetch(`${API_BASE_URL}/api/quantum/measurements?shots=${numShots}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

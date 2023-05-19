@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { UsecaseService } from '../usecase.service';
+import { UsecaseService } from '../usecase/usecase.service';
 
 @Component({
   selector: 'app-header',

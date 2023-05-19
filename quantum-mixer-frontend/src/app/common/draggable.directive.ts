@@ -250,6 +250,9 @@ export class DraggableDirective {
    */
   @HostListener('pointerdown', ['$event']) async onPointerDown(ev: PointerEvent) {
 
+    // remove previous
+    document.getElementById('draggable-mouse-el')?.remove();
+
     // dragImage is not set, try to clone the HTML element as good as possible
     if(!this.dragImage) {
       await this.loadHTMLElementAsDragElement(ev);
@@ -259,6 +262,7 @@ export class DraggableDirective {
       await this.loadImageAsDragElement(ev);
     }
     // set style
+    this.dragElement!.id = 'draggable-mouse-el';
     this.dragElement!.style.display  = 'block';
     this.dragElement!.style.position = 'absolute';
     this.dragElement!.style.zIndex   = '9000';

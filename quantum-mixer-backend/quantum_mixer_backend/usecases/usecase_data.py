@@ -1,15 +1,10 @@
 from pydantic import BaseSettings, BaseModel, Extra
-from typing import Annotated
+from typing import Annotated, Optional
 from quantum_mixer_backend.quantum.circuit_data import CircuitData
 
-# class UsecaseOverview(BaseSettings):
-#     id: Annotated[str, "Usecase id"]
-#     name: Annotated[str, "Usecase name"]
-#     description: Annotated[str, "Usecase description"]
-#     loginRequired: Annotated[bool, "Require login from user (OAuth2)"]
-
 class UsecaseBitMappingItem(BaseSettings):
-    icon: Annotated[str, "Icon"]
+    bits: Annotated[str, "Bit configuration"]
+    icon: Annotated[Optional[str], "Icon"]
     name: Annotated[str, "Display name"]
 
 class UsecaseCircuitCatalogueItem(BaseSettings):
@@ -17,6 +12,7 @@ class UsecaseCircuitCatalogueItem(BaseSettings):
     name: Annotated[str, "Name"]
     description: Annotated[str, "Description"]
     data: CircuitData
+    isPrimary: Annotated[Optional[bool], "Show as primary"]
 
 class UsecaseCircuitCatalogueSection(BaseSettings):
     name: Annotated[str, "Section name"]
@@ -39,7 +35,7 @@ class UsecaseData(BaseSettings):
         extra = Extra.ignore
 
 class UsecasePreferences(BaseSettings):
-    bitMapping: Annotated[dict[str, UsecaseBitMappingItem], "Mapping of bit configurations to products/items"]
+    bitMapping: Annotated[list[UsecaseBitMappingItem], "Mapping of bit configurations to products/items"]
     numMeasurements: UsecaseMeasurementRange
     class Config:
         extra = Extra.ignore

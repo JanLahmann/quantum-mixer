@@ -11,11 +11,16 @@ import { PageEditorComponent } from './editor/page-editor/page-editor.component'
 import { MeasurementComponent } from './editor/measurement/measurement.component';
 import { ButtonModule, ComboBoxModule, GridModule, InputModule, TilesModule, UIShellModule } from 'carbon-components-angular';
 import { HeaderComponent } from './header/header.component';
-import { UsecaseHomeComponent } from './usecase-home/usecase-home.component';
+import { UsecaseHomeComponent } from './usecase/usecase-home/usecase-home.component';
 import { DraggableDirective } from './common/draggable.directive';
 import { CircuitComposerMainComponent } from './circuit-composer/circuit-composer-main/circuit-composer-main.component';
 import { CircuitComposerOperationDetailsComponent } from './circuit-composer/circuit-composer-operation-details/circuit-composer-operation-details.component';
 import { CircuitComposerCatalogueComponent } from './circuit-composer/circuit-composer-catalogue/circuit-composer-catalogue.component';
+import { UsecaseSelectionComponent } from './usecase/usecase-selection/usecase-selection.component';
+import { UsecasePreferencesComponent } from './usecase/usecase-preferences/usecase-preferences.component';
+import { JsonSchemaFormModule } from '@ajsf/core';
+import { UsecaseMainComponent } from './usecase/usecase-main/usecase-main.component';
+import { Bootstrap4FrameworkModule } from '@ajsf/bootstrap4';
 
 @NgModule({
   declarations: [
@@ -30,7 +35,10 @@ import { CircuitComposerCatalogueComponent } from './circuit-composer/circuit-co
     DraggableDirective,
     CircuitComposerMainComponent,
     CircuitComposerOperationDetailsComponent,
-    CircuitComposerCatalogueComponent
+    CircuitComposerCatalogueComponent,
+    UsecaseSelectionComponent,
+    UsecasePreferencesComponent,
+    UsecaseMainComponent
   ],
   imports: [
     BrowserModule,
@@ -41,7 +49,9 @@ import { CircuitComposerCatalogueComponent } from './circuit-composer/circuit-co
     ButtonModule,
     TilesModule,
     InputModule,
-    ComboBoxModule
+    ComboBoxModule,
+    JsonSchemaFormModule,
+    Bootstrap4FrameworkModule
   ],
   providers: [],
   bootstrap: [AppComponent]

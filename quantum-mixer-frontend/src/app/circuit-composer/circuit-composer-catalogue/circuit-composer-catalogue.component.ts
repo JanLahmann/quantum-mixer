@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ComposerCatalogueType, createOperations } from '../model/composer-catalogue';
+import { ComposerCatalogueItem, ComposerCatalogueType, createOperations } from '../model/composer-catalogue';
 import { ComposerDragData } from '../model/composer';
 import { Operation } from '../model/operation';
 
@@ -9,6 +9,9 @@ import { Operation } from '../model/operation';
   styleUrls: ['./circuit-composer-catalogue.component.scss']
 })
 export class CircuitComposerCatalogueComponent {
+
+  public active: Operation | null = null;
+
   constructor() {
 
   }

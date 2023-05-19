@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UsecaseService } from 'src/app/usecase.service';
+import { UsecaseService } from '../../usecase/usecase.service';
 import { CircuitService } from 'src/app/circuit-composer/circuit.service';
 
 @Component({
@@ -9,18 +9,19 @@ import { CircuitService } from 'src/app/circuit-composer/circuit.service';
 })
 export class MeasurementComponent implements OnInit {
 
-  public status: 'ready' | 'loading' | 'measured' | 'ordered' = 'ready';
-  public data: {bit: string, icon: string, display: string}[] = [];
+  public status: 'ready' | 'loading' | 'measured' | 'ordered' | 'error' = 'ready';
+  public data: {bit: string, icon?: string, display: string}[] = [];
   public numMeasurements: number = 1;
+  public error: string | null = null;
 
   constructor(private circuitService: CircuitService, private usecaseService: UsecaseService) {
 
   }
 
   ngOnInit(): void {
-      this.usecaseService.initialLoadingPromise.then(_ => {
-        this.numMeasurements = this.usecaseService.data?.numMeasurements.default || 1;
-      })
+    if(this.usecaseService.preferences) {
+      this.numMeasurements = this.usecaseService.preferences.numMeasurements.default;
+    }
   }
 
   async measure() {
@@ -33,10 +34,11 @@ export class MeasurementComponent implements OnInit {
       const data = await this.circuitService.measure(this.numMeasurements);
       data.results.map((result, i) => {
         setTimeout(() => {
+          const bitMapping = this.usecaseService.getBitMapping(result);
           this.data.push({
             bit: result,
-            icon: this.usecaseService.data!.bitMapping[result].icon,
-            display: this.usecaseService.data!.bitMapping[result].name+ ` (${result})`
+            icon: bitMapping ? bitMapping.icon : '',
+            display: bitMapping ? `${bitMapping.name} (${result})` : ''
           });
         }, (i+1)*500);
       })
@@ -45,14 +47,17 @@ export class MeasurementComponent implements OnInit {
       }, data.results.length*500);
     } catch (error) {
       this.data = [];
-      this.status = 'ready';
+      this.status = 'error';
+      this.error = error as any;
+      setTimeout(() => {
+        this.status = 'ready';
+      }, 5000)
     }
   }
 
   async order() {
     this.status = 'loading';
     const data = this.data.map(d => d.bit);
-    this.data = [];
     await this.usecaseService.order(data);
     this.status = 'ordered';
     setTimeout(() => {
