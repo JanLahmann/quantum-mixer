@@ -11,10 +11,15 @@ export class MeasurementComponent implements OnInit {
 
   public status: 'ready' | 'loading' | 'measured' | 'ordered' | 'error' = 'ready';
   public data: {bit: string, icon?: string, display: string}[] = [];
+
+  public numMeasurementsDefault: number = 1;
+  public numMeasurementsMin: number = 1;
+  public numMeasurementsMax: number = 1;
   public numMeasurements: number = 1;
+
   public error: string | null = null;
 
-  constructor(private circuitService: CircuitService, private usecaseService: UsecaseService) {
+  constructor(private circuitService: CircuitService, public usecaseService: UsecaseService) {
 
   }
 
@@ -33,18 +38,14 @@ export class MeasurementComponent implements OnInit {
     try {
       const data = await this.circuitService.measure(this.numMeasurements);
       data.results.map((result, i) => {
-        setTimeout(() => {
-          const bitMapping = this.usecaseService.getBitMapping(result);
-          this.data.push({
-            bit: result,
-            icon: bitMapping ? bitMapping.icon : '',
-            display: bitMapping ? `${bitMapping.name} (${result})` : ''
-          });
-        }, (i+1)*500);
+        const bitMapping = this.usecaseService.getBitMapping(result);
+        this.data.push({
+          bit: result,
+          icon: bitMapping ? bitMapping.icon : '',
+          display: bitMapping ? `${bitMapping.name} (${result})` : ''
+        });
       })
-      setTimeout(() => {
-        this.status = 'measured';
-      }, data.results.length*500);
+      this.status = 'measured';
     } catch (error) {
       this.data = [];
       this.status = 'error';

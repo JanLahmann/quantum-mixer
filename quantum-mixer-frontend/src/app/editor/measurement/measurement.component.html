@@ -2,6 +2,21 @@
   Do a measurement of the circuit to retrieve a classic value.
 </p>
 
+<fieldset *ngIf="usecaseService.preferences && usecaseService.preferences.numMeasurements.min < usecaseService.preferences.numMeasurements.max" class="bx--fieldset">
+  <legend class="bx--label">Number of measurements</legend>
+  <ibm-radio-group
+    aria-label="radiogroup"
+    (change)="numMeasurements = +($event.value)"
+    >
+    <ibm-radio *ngFor="let radio of [usecaseService.preferences?.numMeasurements?.min, usecaseService.preferences?.numMeasurements?.max] | asRange"
+      [value]="''+radio"
+      [checked]="radio == numMeasurements"
+      >
+      {{radio}}
+    </ibm-radio>
+  </ibm-radio-group>
+</fieldset>
+
 <button *ngIf="status == 'ready' || status == 'measured' || status == 'loading'" [ibmButton]="status == 'ready' ? 'primary' : 'secondary'" [disabled]="status == 'loading'" (click)="measure()" [isExpressive]="true">Measure</button>
 
 <p *ngIf="status == 'measured'">

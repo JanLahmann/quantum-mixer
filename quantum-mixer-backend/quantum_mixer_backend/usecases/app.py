@@ -1,11 +1,15 @@
 import os
 from fastapi import FastAPI
 from .qoffee import QoffeeUsecase
+from .usecase import Usecase
 from .usecase_data import UsecaseData
 
 USECASES = [
     QoffeeUsecase.from_file(
         os.path.join(os.path.dirname(os.path.realpath(__file__)), 'qoffee', 'usecase.yml')
+    ),
+    Usecase.from_file(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), 'usecase_ice.yml')
     )
 ]
 

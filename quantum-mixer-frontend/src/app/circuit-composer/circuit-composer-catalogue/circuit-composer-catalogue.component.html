@@ -6,7 +6,7 @@
       appDraggable
       [dragImage]="item.operation.png"
       [dragImageSize]="{'width': 50}"
-      [dragElementOffset]="{'x': '-50%'}"
+      [dragElementOffset]="{'x': '-50%', 'y': -25}"
       (dragstart)="handleNewOperationDragStart($event, item.type)"
       (click)="active = item.operation">
       <img [src]="item.operation.png">

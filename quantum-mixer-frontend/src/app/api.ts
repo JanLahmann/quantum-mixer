@@ -1,6 +1,6 @@
 import { CircuitData } from "./circuit-composer/model/circuit"
 
-export const API_BASE_URL = 'http://localhost:8080'
+export const API_BASE_URL = ''
 
 export interface UsecaseBitMappingItem {
   icon?: string,
