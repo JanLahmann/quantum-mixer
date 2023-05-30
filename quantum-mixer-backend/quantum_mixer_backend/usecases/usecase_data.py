@@ -7,21 +7,14 @@ class UsecaseBitMappingItem(BaseSettings):
     icon: Annotated[Optional[str], "Icon"]
     name: Annotated[str, "Display name"]
 
-class UsecaseCircuitCatalogueItem(BaseSettings):
-    id: Annotated[str, "Internal id"]
-    name: Annotated[str, "Name"]
-    description: Annotated[str, "Description"]
-    data: CircuitData
-    isPrimary: Annotated[Optional[bool], "Show as primary"]
-
-class UsecaseCircuitCatalogueSection(BaseSettings):
-    name: Annotated[str, "Section name"]
-    items: Annotated[list[UsecaseCircuitCatalogueItem], "List of items belonging to this section"]
-
 class UsecaseMeasurementRange(BaseSettings):
     min: Annotated[int, "Minimum number of measurements"]
     max: Annotated[int, "Maximum number of measurements (0 for inifite)"]
     default: Annotated[int, "Default number of measurements"]
+
+class UsecaseExternalLink(BaseSettings):
+    name: Annotated[str, "Display name of external link"]
+    url: Annotated[str, "URL of external link"]
 
 class UsecaseData(BaseSettings):
     id: Annotated[str, "Usecase id"]
@@ -29,7 +22,8 @@ class UsecaseData(BaseSettings):
     description: Annotated[str, "Usecase Description"]
     numQubits: Annotated[int, "Number of qubits"]
     loginRequired: Annotated[bool, "Requires login from user (OAuth2)"]
-    circuitsCatalogue: Annotated[list[UsecaseCircuitCatalogueSection], "Initial circuit configurations to start from"]
+    hasOrder: Annotated[bool, "Provides an order endpoint"]
+    externalLinks: Annotated[list[UsecaseExternalLink], "External links"]
 
     class Config:
         extra = Extra.ignore

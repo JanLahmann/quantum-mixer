@@ -103,7 +103,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
     parameters: [{
       name: 'lambda',
       default: 'pi/2',
-      options: ['pi/4', 'pi/2', '3*pi/4', 'pi']
+      options: ['pi/8', '2*pi/8', '3*pi/8', '4*pi/8', '5*pi/8', '6*pi/8', '7*pi/8', 'pi']
     }],
     color: 'rgb(239, 184, 230)',
     text: 'RY',

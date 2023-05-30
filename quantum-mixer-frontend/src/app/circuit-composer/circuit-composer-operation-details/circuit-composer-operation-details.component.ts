@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges } from '@angular/core';
 import { Operation } from '../model/operation';
 import { CircuitService } from '../circuit.service';
 
@@ -24,7 +24,7 @@ export class CircuitComposerOperationDetailsComponent {
 
   public parameters: {name: string, options: {content: string, selected: boolean}[]}[] = [];
 
-  constructor(public circuitService: CircuitService, private detector: ChangeDetectorRef) {
+  constructor(public circuitService: CircuitService) {
 
   }
 

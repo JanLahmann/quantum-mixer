@@ -10,7 +10,7 @@ export class OperationRenderer {
   public readonly canvas: fabric.StaticCanvas;
 
   constructor(relativeWidth: number, numCoveredQubits: number, padding: number = -1, renderWithWhiteBackground: boolean = false) {
-    this.qubitHeight = 100;
+    this.qubitHeight = 150;
     this.qubitWidth  = relativeWidth*this.qubitHeight;
     this.viewHeight  = numCoveredQubits * this.qubitHeight;
     this.viewWidth   = this.qubitWidth;

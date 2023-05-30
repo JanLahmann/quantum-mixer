@@ -1,11 +1,8 @@
-<ibm-header [name]="this.usecaseService.usecase?.name || ''">
-	<ibm-header-navigation>
-		<ibm-header-item routerLink="/{{usecaseService.usecase?.id}}">Home</ibm-header-item>
-    <ibm-header-item href="https://www.ibm.com/quantum" target="_blank">IBM Quantum</ibm-header-item>
+<ibm-header brand="" [name]="(this.usecaseService.usecase | async)?.name || ''" routerLink="/">
+	<ibm-header-navigation *ngIf="this.usecaseService.usecase | async; let usecase">
+		<ibm-header-item routerLink="/{{usecase.id}}">Home</ibm-header-item>
+    <ibm-header-item *ngFor="let externalLink of usecase.externalLinks" (click)="openLink(externalLink.url)">
+      {{ externalLink.name }}
+    </ibm-header-item>
 	</ibm-header-navigation>
-	<ibm-header-global>
-    <ibm-header-action routerLink="/">
-      H
-    </ibm-header-action>
-	</ibm-header-global>
 </ibm-header>

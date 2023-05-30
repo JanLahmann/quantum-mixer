@@ -1,8 +1,8 @@
-<json-schema-form *ngIf="usecaseService.preferences && usecaseService.preferencesSchema"
+<json-schema-form *ngIf="usecaseService.preferences | async; let preferences"
   [loadExternalAssets]="true"
   [schema]="usecaseService.preferencesSchema"
   framework="bootstrap-4"
-  [data]="usecaseService.preferences"
+  [data]="preferences"
   (onSubmit)="submit($event)"
   >
 </json-schema-form>

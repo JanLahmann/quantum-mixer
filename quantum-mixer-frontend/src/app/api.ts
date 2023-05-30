@@ -8,23 +8,15 @@ export interface UsecaseBitMappingItem {
   bits: string
 }
 
-export interface UsecaseCircuitCatalogueItem {
-  id: string,
-  name: string,
-  description: string,
-  data: CircuitData,
-  isPrimary?: boolean
-}
-
-export interface UsecaseCircuitCatalogueSection {
-  name: string,
-  items: UsecaseCircuitCatalogueItem[]
-}
-
 export interface UsecaseMeasurementRange {
   min: number,
   max: number,
   default: number
+}
+
+export interface UsecaseExternalLink {
+  name: string,
+  url: string
 }
 
 export interface UsecaseData {
@@ -33,7 +25,8 @@ export interface UsecaseData {
   description: string,
   numQubits: string,
   loginRequired: string,
-  circuitsCatalogue: UsecaseCircuitCatalogueSection[]
+  hasOrder: boolean,
+  externalLinks: UsecaseExternalLink[]
 }
 
 export interface UsecasePreferences {

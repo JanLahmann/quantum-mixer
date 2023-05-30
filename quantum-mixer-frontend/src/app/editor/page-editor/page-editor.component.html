@@ -1,14 +1,18 @@
 <div class="container">
 
-  <p>Drag & Drop Quantum Gates onto the Qubits to build your circuit.</p>
-
-  <div class="spacer" style="height: 30px"></div>
-
-  <app-circuit-composer-catalogue></app-circuit-composer-catalogue>
-
-  <div class="spacer" style="height: 30px"></div>
-
-  <app-circuit-composer-main></app-circuit-composer-main>
+  <div ibmRow>
+    <div ibmCol [columnNumbers]="{'lg': 8}">
+      <app-circuit-composer-catalogue></app-circuit-composer-catalogue>
+      <div class="spacer" style="height: 30px"></div>
+      <app-circuit-composer-main></app-circuit-composer-main>
+    </div>
+    <div ibmCol [columnNumbers]="{'lg': 4}">
+      <img class="logo" src="/assets/ibm.svg"/>
+      <p style="margin-top: 30px">
+        IBM Quantum leads the world in quantum computing. This technology is widely expected to solve valuable problems that are unsolvable using any known methods on classical supercomputers.
+      </p>
+    </div>
+  </div>
 
   <div class="spacer" style="height: 30px"></div>
 

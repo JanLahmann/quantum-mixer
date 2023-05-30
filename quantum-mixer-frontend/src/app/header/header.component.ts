@@ -10,4 +10,8 @@ export class HeaderComponent {
   constructor(public usecaseService: UsecaseService) {
 
   }
+
+  openLink(url: string) {
+    window.open(url, '_blank');
+  }
 }

@@ -1,8 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { CircuitService } from 'src/app/circuit-composer/circuit.service';
-import { UsecaseService } from '../../usecase/usecase.service';
-
 
 @Component({
   selector: 'app-page-editor',
@@ -11,18 +7,11 @@ import { UsecaseService } from '../../usecase/usecase.service';
 })
 export class PageEditorComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute, private usecaseService: UsecaseService, private circuitService: CircuitService) {
+  constructor() {
 
   }
 
   ngOnInit(): void {
-    this.route.params.subscribe(async params => {
-      if(params['catalogue']) {
-        const data = this.usecaseService.getCircuitById(params['catalogue']);
-        if(data) {
-          this.circuitService.circuit.load(data);
-        }
-      }
-    })
+
   }
 }

@@ -1,13 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UsecaseService } from '../../usecase/usecase.service';
 import { CircuitService } from 'src/app/circuit-composer/circuit.service';
+import { Unsubscribable } from 'rxjs';
 
 @Component({
   selector: 'app-measurement',
   templateUrl: './measurement.component.html',
   styleUrls: ['./measurement.component.scss']
 })
-export class MeasurementComponent implements OnInit {
+export class MeasurementComponent implements OnInit, OnDestroy {
 
   public status: 'ready' | 'loading' | 'measured' | 'ordered' | 'error' = 'ready';
   public data: {bit: string, icon?: string, display: string}[] = [];
@@ -18,14 +19,24 @@ export class MeasurementComponent implements OnInit {
   public numMeasurements: number = 1;
 
   public error: string | null = null;
+  private _sub: Unsubscribable | null = null;
 
-  constructor(private circuitService: CircuitService, public usecaseService: UsecaseService) {
+  constructor(public circuitService: CircuitService, public usecaseService: UsecaseService) {
 
   }
 
   ngOnInit(): void {
-    if(this.usecaseService.preferences) {
-      this.numMeasurements = this.usecaseService.preferences.numMeasurements.default;
+    this._sub = this.usecaseService.preferences.subscribe(preferences => {
+      this.numMeasurements = preferences.numMeasurements.default;
+      this.numMeasurementsMin = preferences.numMeasurements.min;
+      this.numMeasurementsMax = preferences.numMeasurements.max;
+      this.numMeasurements = preferences.numMeasurements.default;
+    })
+  }
+
+  ngOnDestroy(): void {
+    if(this._sub) {
+      this._sub.unsubscribe();
     }
   }
 
@@ -61,9 +72,10 @@ export class MeasurementComponent implements OnInit {
     const data = this.data.map(d => d.bit);
     await this.usecaseService.order(data);
     this.status = 'ordered';
-    setTimeout(() => {
-      this.status = 'ready';
-      this.circuitService.circuit.reset();
-    }, 5000)
+  }
+
+  reset() {
+    this.circuitService.circuit.reset();
+    this.status = 'ready';
   }
 }

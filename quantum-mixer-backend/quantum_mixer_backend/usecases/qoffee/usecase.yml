@@ -4,222 +4,50 @@ description: QoffeeMaker
 bitMapping:
   - bits: '000'
     name: Tea
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: NotImplemented
   - bits: '001'
     name: Hot Chocolate
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.MilkFroth
   - bits: '010'
     name: Espresso
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Espresso
     options:
     - key: ConsumerProducts.CoffeeMaker.Option.FillQuantity
       value: 50
   - bits: '011'
     name: Coffee
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Coffee
   - bits: '100'
     name: Cappucino
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Cappuccino
   - bits: '101'
     name: Latte Macchiato
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.LatteMacchiato
   - bits: '110'
     name: Viennese Melange
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.WienerMelange
   - bits: '111'
     name: Americano
-    icon: ''
+    icon: /assets/beverage-latte-macchiato.png
     key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Americano
 numQubits: 3
-circuitsCatalogue:
-  - name: From Scratch
-    items:
-    - id: empty
-      name: Empty
-      description: Start from Scratch
-      data:
-        numQubits: 3
-        operations: []
-      isPrimary: true
-  - name: Starter
-    items:
-    - id: superposition
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
-    - id: superposition2
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
-    - id: superposition3
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
-    - id: superposition4
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
-    - id: superposition5
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
-    - id: superposition6
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
-    - id: superposition7
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
-    - id: superposition8
-      name: Superposition
-      description: From Superposition
-      data:
-        numQubits: 3
-        operations:
-        - id: <>
-          type: h
-          targetQubits: [0]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [1]
-          controlQubits: []
-          parameterValues: []
-        - id: <>
-          type: h
-          targetQubits: [2]
-          controlQubits: []
-          parameterValues: []
 numMeasurements:
   min: 1
   max: 1
   default: 1
 loginRequired: true
+hasOrder: true
+externalLinks:
+  - name: IBM Quantum
+    url: https://www.ibm.com/quantum
+  - name: Qiskit
+    url: https://qiskit.org/
+  - name: Qoffee Maker
+    url: https://qoffee-maker.org

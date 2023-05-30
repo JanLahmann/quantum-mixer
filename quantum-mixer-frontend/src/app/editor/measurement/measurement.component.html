@@ -1,44 +1,51 @@
-<p *ngIf="status == 'ready'">
-  Do a measurement of the circuit to retrieve a classic value.
-</p>
+<!-- <p *ngIf="status == 'ready'">
+  Execute the circuit
+</p> -->
 
-<fieldset *ngIf="usecaseService.preferences && usecaseService.preferences.numMeasurements.min < usecaseService.preferences.numMeasurements.max" class="bx--fieldset">
-  <legend class="bx--label">Number of measurements</legend>
-  <ibm-radio-group
-    aria-label="radiogroup"
-    (change)="numMeasurements = +($event.value)"
-    >
-    <ibm-radio *ngFor="let radio of [usecaseService.preferences?.numMeasurements?.min, usecaseService.preferences?.numMeasurements?.max] | asRange"
-      [value]="''+radio"
-      [checked]="radio == numMeasurements"
+<div *ngIf="usecaseService.usecase | async; let usecase">
+  <fieldset *ngIf="numMeasurementsMin < numMeasurementsMax" class="bx--fieldset">
+    <legend class="bx--label">Number of shots</legend>
+    <ibm-radio-group
+      aria-label="radiogroup"
+      (change)="numMeasurements = +($event.value)"
       >
-      {{radio}}
-    </ibm-radio>
-  </ibm-radio-group>
-</fieldset>
+      <ibm-radio *ngFor="let radio of [numMeasurementsMin, numMeasurementsMax] | asRange"
+        [value]="''+radio"
+        [checked]="radio == numMeasurements"
+        >
+        {{radio}}
+      </ibm-radio>
+    </ibm-radio-group>
+  </fieldset>
 
-<button *ngIf="status == 'ready' || status == 'measured' || status == 'loading'" [ibmButton]="status == 'ready' ? 'primary' : 'secondary'" [disabled]="status == 'loading'" (click)="measure()" [isExpressive]="true">Measure</button>
+  <button *ngIf="status == 'ready' || status == 'measured' || status == 'loading'" [ibmButton]="status == 'ready' ? 'primary' : 'secondary'" [disabled]="status == 'loading'" (click)="measure()" [isExpressive]="true">Execute circuit</button>
 
-<p *ngIf="status == 'measured'">
-  The measurement yielded:
-</p>
+  <!-- <p *ngIf="status == 'measured'">
+    The measurement yielded:
+  </p> -->
 
-<ul *ngIf="status == 'measured'" class="result-list">
-  <li *ngFor="let res of data" class="result">
-    <img *ngIf="res.icon" [src]="res.icon">
-    {{res.display}}
-  </li>
-</ul>
+  <ul *ngIf="status == 'measured'" class="result-list">
+    <li *ngFor="let res of data" class="result">
+      <img *ngIf="res.icon" [src]="res.icon">
+      {{res.display}}
+    </li>
+  </ul>
 
-<button *ngIf="status == 'measured'" ibmButton="primary" (click)="order()" [isExpressive]="true">Order</button>
+  <button *ngIf="usecase.hasOrder && status == 'measured'" ibmButton="primary" (click)="order()" [isExpressive]="true">Accept</button>
 
-<p *ngIf="status == 'ordered'" class="with-img">
-  <img src="/assets/thumbs-up-line-icon.png"/>
-  The order has been placed. Thank you very much for taking time.
-</p>
+  <p *ngIf="status == 'ordered'" class="with-img">
+    <img src="/assets/thumbs-up-line-icon.png"/>
+    Thank you for creating this quantum circuit. The beverage has been ordered.
+  </p>
 
-<p *ngIf="status == 'error'" class="with-img">
-  <img src="/assets/close-round-line-icon.png"/>
-  The order has not been placed.<br/>
-  Error: {{ error }}
-</p>
+  <p *ngIf="status == 'error'" class="with-img">
+    <img src="/assets/close-round-line-icon.png"/>
+    The order has not been placed.<br/>
+    Error: {{ error }}
+  </p>
+
+  <button *ngIf="status == 'ordered' || status == 'error'" ibmButton="primary" (click)="reset()" [isExpressive]="true">Reset</button>
+
+</div>
+
+

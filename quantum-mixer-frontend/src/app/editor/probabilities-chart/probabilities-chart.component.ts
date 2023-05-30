@@ -4,12 +4,18 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Unsubscribable } from 'rxjs';
 import { UsecaseService } from '../../usecase/usecase.service';
 import { BaseChartDirective } from 'ng2-charts';
-import { CircuitService, DeviceType } from 'src/app/circuit-composer/circuit.service';
+import { CircuitService, DeviceType, ProbabilitiesResponse } from '../../circuit-composer/circuit.service';
 
 const DeviceNames: {[key in DeviceType]: string} = {
-  [DeviceType.MOCK]: 'Mock Device',
-  [DeviceType.ANALYTICAL]: 'Analytical',
-  [DeviceType.QASM]: 'Simulated'
+  [DeviceType.ANALYTICAL]: 'Theory',
+  [DeviceType.MOCK]: 'Real Device',
+  [DeviceType.QASM]: 'Simulator'
+}
+
+const DeviceColors: {[key in DeviceType]: string} = {
+  [DeviceType.ANALYTICAL]: '#3498db',
+  [DeviceType.MOCK]: '#8e44ad',
+  [DeviceType.QASM]: '#2ecc71',
 }
 
 @Component({
@@ -21,20 +27,18 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
 
   public plugins = [ChartDataLabels];
   private _changeSub: Unsubscribable | null = null;
+  private _sub: Unsubscribable | null = null;
 
   @ViewChild('chart') chart: BaseChartDirective | undefined;
 
   constructor(public circuitService: CircuitService, private usecaseService: UsecaseService) {
   }
 
-  async createLabels(bitConfigurations: string[]) {
-    return bitConfigurations.map(bitConfig => {
-      return [this.usecaseService.getBitMapping(bitConfig)?.name, bitConfig]
-    })
-  }
-
   ngOnInit() {
     Chart.register(ChartDataLabels);
+    this._sub = this.usecaseService.preferences.subscribe(_ => {
+      this.chart?.chart?.update();
+    })
     this._changeSub = this.circuitService.probabilities.subscribe(async res => {
       const isHidden: {[key: number]: boolean} = {};
       // get view status from previous
@@ -43,7 +47,7 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
       })
       // set data
       this.data = {
-        labels: await this.createLabels(res.bits),
+        labels: res.bits,
         datasets: Object.keys(res.results).map((key, i) => {
           const data = res.results[<DeviceType>key];
           return {
@@ -51,7 +55,8 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
             data: data,
             hidden: !!isHidden[i],
             barPercentage: 0.9,
-            barThickness: 'flex'
+            barThickness: 'flex',
+            backgroundColor: DeviceColors[<DeviceType>key]
           }
         })
       }
@@ -76,11 +81,11 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
         max: 1,
         ticks: {
           maxTicksLimit: 10,
-          format: {
-            style: 'percent'
+          callback: (value: string|number) => {
+            return Math.round(+value*100)+'%'
           },
           font: {
-            size: 14,
+            size: 18,
             family: 'IBM Plex Sans'
           },
           color: 'black'
@@ -89,7 +94,23 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
       y: {
         ticks: {
           font: {
-            size: 14,
+            size: 18,
+            family: 'IBM Plex Sans'
+          },
+          color: 'black',
+          maxRotation: 90,
+          minRotation: 90,
+          labelOffset: -18
+        }
+      },
+      y1: {
+        position: 'right',
+        ticks: {
+          callback: (value: string|number, index:number) => {
+            return this.data.labels ? this.usecaseService.getBitMapping(this.data.labels[index] as string)?.name : ''
+          },
+          font: {
+            size: 24,
             family: 'IBM Plex Sans'
           },
           color: 'black'
@@ -101,7 +122,7 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
         position: 'top',
         labels: {
           font: {
-            size: 14,
+            size: 24,
             family: 'IBM Plex Sans'
           },
           color: 'black'
@@ -111,7 +132,7 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
         anchor: 'end',
         //textAlign: 'start',
         align: 'end',
-        formatter: val => {
+        formatter: (val: number) => {
           const newVal = Math.round(val * 100);
           if(newVal == 0) {
             return '';
@@ -131,6 +152,9 @@ export class ProbabilitiesChartComponent implements OnInit, OnDestroy  {
   ngOnDestroy(): void {
     if(this._changeSub) {
       this._changeSub.unsubscribe();
+    }
+    if(this._sub) {
+      this._sub.unsubscribe();
     }
   }
 }

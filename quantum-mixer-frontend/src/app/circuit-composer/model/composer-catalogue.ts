@@ -4,8 +4,8 @@ export enum ComposerCatalogueType {
   HADAMARD = 'hadamard',
   NOT      = 'not',
   CNOT     = 'cnot',
-  CCNOT    = 'ccnot',
-  IDENTITY = 'identity',
+  // CCNOT    = 'ccnot',
+  // IDENTITY = 'identity',
   Z        = 'z',
   RY       = 'ry',
   SWAP     = 'swap'
@@ -56,26 +56,26 @@ export const ComposerCatalogue: {[key in ComposerCatalogueType]: ComposerCatalog
       }
     ]
   },
-  [ComposerCatalogueType.CCNOT]: {
-    operations: [
-      {
-        type: OperationType.NOT,
-        targetQubits: [2],
-        controlQubits: [0, 1],
-        parameterValues: []
-      }
-    ]
-  },
-  [ComposerCatalogueType.IDENTITY]: {
-    operations: [
-      {
-        type: OperationType.IDENTITY,
-        targetQubits: [0],
-        controlQubits: [],
-        parameterValues: []
-      }
-    ]
-  },
+  // [ComposerCatalogueType.CCNOT]: {
+  //   operations: [
+  //     {
+  //       type: OperationType.NOT,
+  //       targetQubits: [2],
+  //       controlQubits: [0, 1],
+  //       parameterValues: []
+  //     }
+  //   ]
+  // },
+  // [ComposerCatalogueType.IDENTITY]: {
+  //   operations: [
+  //     {
+  //       type: OperationType.IDENTITY,
+  //       targetQubits: [0],
+  //       controlQubits: [],
+  //       parameterValues: []
+  //     }
+  //   ]
+  // },
   [ComposerCatalogueType.Z]: {
     operations: [
       {
