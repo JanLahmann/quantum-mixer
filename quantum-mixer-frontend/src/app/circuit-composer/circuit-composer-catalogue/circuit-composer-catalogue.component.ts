@@ -1,7 +1,14 @@
 import { Component } from '@angular/core';
-import { ComposerCatalogueItem, ComposerCatalogueType, createOperations } from '../model/composer-catalogue';
+import { ComposerCatalogue, ComposerCatalogueItem, ComposerCatalogueType, createOperations } from '../model/composer-catalogue';
 import { ComposerDragData } from '../model/composer';
 import { Operation } from '../model/operation';
+
+interface ComposerCatalogueItemDisplay {
+  type: ComposerCatalogueType,
+  name: string,
+  operation: Operation,
+  description: string
+}
 
 @Component({
   selector: 'app-circuit-composer-catalogue',
@@ -10,7 +17,7 @@ import { Operation } from '../model/operation';
 })
 export class CircuitComposerCatalogueComponent {
 
-  public active: Operation | null = null;
+  public active: ComposerCatalogueItemDisplay|null = null;
 
   constructor() {
 
@@ -22,12 +29,13 @@ export class CircuitComposerCatalogueComponent {
         this.catalogue.push({
           type: value,
           name: value,
-          operation: op
+          operation: op,
+          description: ComposerCatalogue[value].description
         })
       })
   }
 
-  public catalogue: {type: ComposerCatalogueType, name: string, operation: Operation}[] = [];
+  public catalogue: ComposerCatalogueItemDisplay[] = [];
 
   /**
    * Start dragging of buttons/icons to add new operations to the composer.

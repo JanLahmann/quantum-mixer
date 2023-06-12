@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UsecaseService } from '../../usecase/usecase.service';
-import { CircuitService } from 'src/app/circuit-composer/circuit.service';
+import { CircuitService, DeviceType } from '../../circuit-composer/circuit.service';
 import { Unsubscribable } from 'rxjs';
 
 @Component({
@@ -21,6 +21,8 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   public error: string | null = null;
   private _sub: Unsubscribable | null = null;
 
+  public device: DeviceType = DeviceType.QASM;
+
   constructor(public circuitService: CircuitService, public usecaseService: UsecaseService) {
 
   }
@@ -40,6 +42,12 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     }
   }
 
+  DeviceType = DeviceType
+
+  setDevice(name: string) {
+    this.device = name as any;
+  }
+
   async measure() {
     if(this.status == 'loading') {
       return;
@@ -47,7 +55,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     this.data = [];
     this.status = 'loading';
     try {
-      const data = await this.circuitService.measure(this.numMeasurements);
+      const data = await this.circuitService.measure(this.numMeasurements, this.device);
       data.results.map((result, i) => {
         const bitMapping = this.usecaseService.getBitMapping(result);
         this.data.push({

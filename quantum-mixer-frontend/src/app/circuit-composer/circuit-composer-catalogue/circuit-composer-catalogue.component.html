@@ -8,11 +8,11 @@
       [dragImageSize]="{'width': 70}"
       [dragElementOffset]="{'x': '-50%', 'y': -35}"
       (dragstart)="handleNewOperationDragStart($event, item.type)"
-      (click)="active = item.operation">
+      (click)="active = item">
       <img [src]="item.operation.png">
     </div>
     <div *ngIf="active" class="circuit-composer-catalogue-description">
-      <p>{{ active.properties.description }}</p>
+      <p>{{ active.description }}</p>
     </div>
   </div>
 </div>

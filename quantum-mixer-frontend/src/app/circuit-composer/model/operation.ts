@@ -53,7 +53,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.HADAMARD]: {
     type: OperationType.HADAMARD,
     title: 'Hadamard',
-    description: 'The H, or Hadamard, gate rotates the states ∣0⟩∣0⟩ and ∣1⟩∣1⟩ to ∣+⟩∣+⟩ and ∣−⟩∣−⟩, respectively. It is useful for making superpositions. If you have a universal gate set on a classical computer and add the Hadamard gate, it becomes a universal gate set on a quantum computer.',
+    description: 'The H, or Hadamard, gate rotates the states ∣0⟩ and ∣1⟩ to ∣+⟩ and ∣−⟩, respectively. It is useful for making superpositions. If you have a universal gate set on a classical computer and add the Hadamard gate, it becomes a universal gate set on a quantum computer.',
     numTargetQubits: 1,
     numControlQubits: [0, 1],
     parameters: [],
@@ -64,7 +64,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.NOT]: {
     type: OperationType.NOT,
     title: 'NOT',
-    description: 'The NOT gate, also known as the Pauli X gate, flips the ∣0⟩∣0⟩ state to ∣1⟩∣1⟩, and vice versa. The NOT gate is equivalent to RX for the angle ππ or to HZH.',
+    description: 'The NOT gate, also known as the Pauli X gate, flips the ∣0⟩ state to ∣1⟩, and vice versa. The NOT gate is equivalent to RX for the angle ππ or to HZH.',
     numTargetQubits: 1,
     numControlQubits: [0, 4],
     parameters: [],
@@ -75,7 +75,7 @@ export const OperationProperties: {[key in OperationType]: OperationProperties} 
   [OperationType.Z]: {
     type: OperationType.Z,
     title: 'Z',
-    description: 'The Pauli Z gate acts as identity on the ∣0⟩∣0⟩ state and multiplies the sign of the ∣1⟩∣1⟩ state by -1. It therefore flips the ∣+⟩∣+⟩ and ∣−⟩∣−⟩ states. In the +/- basis, it plays the same role as the NOT gate in the ∣0⟩∣0⟩/∣1⟩∣1⟩ basis.',
+    description: 'The Pauli Z gate acts as identity on the ∣0⟩ state and multiplies the sign of the ∣1⟩ state by -1. It therefore flips the ∣+⟩ and ∣−⟩ states. In the +/- basis, it plays the same role as the NOT gate in the ∣0⟩/∣1⟩ basis.',
     numTargetQubits: 1,
     numControlQubits: [0, 2],
     parameters: [],

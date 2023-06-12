@@ -5,3 +5,22 @@
   display: block;
   padding: 50px;
 }
+
+.app-control {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 150px;
+  height: 24px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+
+  span {
+    flex: 0 0 auto;
+    padding: 5px 10px 5px 10px;
+    margin: 0 5px 0 5px;
+    cursor: pointer;
+    color: grey;
+  }
+}

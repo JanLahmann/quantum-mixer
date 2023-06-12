@@ -95,9 +95,9 @@ export class CircuitService {
 
   }
 
-  public async measure(numShots: number): Promise<MeasurementResponse> {
+  public async measure(numShots: number, device: DeviceType = DeviceType.QASM): Promise<MeasurementResponse> {
     return new Promise((resolve, reject) => {
-      fetch(`${API_BASE_URL}/api/quantum/measurements?shots=${numShots}`, {
+      fetch(`${API_BASE_URL}/api/quantum/measurements?shots=${numShots}&device=${device}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -7,4 +7,12 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'quantum-mixer-frontend';
+
+  reload() {
+    window.location.reload();
+  }
+
+  requestFullscreen() {
+    return document.documentElement.requestFullscreen()
+  }
 }

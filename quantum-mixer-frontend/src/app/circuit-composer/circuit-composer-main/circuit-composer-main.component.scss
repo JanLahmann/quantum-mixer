@@ -122,3 +122,16 @@ $qubit-line-height: 1px;
 
 }
 
+
+
+.circuit-composer-control {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  margin-top: -24px;
+
+  span {
+    padding: 5px;
+    cursor: pointer;
+  }
+}

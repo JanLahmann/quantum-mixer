@@ -1,0 +1,40 @@
+id: cocktail
+name: Qocktail
+description: Qocktail
+bitMapping:
+  - bits: '000'
+    name: Whiskey Sour
+    icon: /assets/cocktails/whiskey-sour.png
+  - bits: '001'
+    name: Long Island Iced Tea
+    icon: /assets/cocktails/long-island.png
+  - bits: '010'
+    name: Margarita
+    icon: /assets/cocktails/margerita.png
+  - bits: '011'
+    name: Cosmopolitan
+    icon: /assets/cocktails/cosmo.png
+  - bits: '100'
+    name: Uptown Rocks
+    icon: /assets/cocktails/uptown-rocks.png
+  - bits: '101'
+    name: Old Fashioned
+    icon: /assets/cocktails/old-fashioned.png
+  - bits: '110'
+    name: Lemon Drop
+    icon: /assets/cocktails/lemon-drop.png
+  - bits: '111'
+    name: Water
+    icon: /assets/cocktails/water.jpg
+numQubits: 3
+numMeasurements:
+  min: 1
+  max: 1
+  default: 1
+loginRequired: false
+hasOrder: false
+externalLinks:
+  - name: IBM Quantum
+    url: https://www.ibm.com/quantum
+  - name: Qiskit
+    url: https://qiskit.org/

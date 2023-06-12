@@ -1,8 +1,26 @@
-<!-- <p *ngIf="status == 'ready'">
-  Execute the circuit
-</p> -->
-
 <div *ngIf="usecaseService.usecase | async; let usecase">
+
+  <fieldset class="bx--fieldset">
+    <legend class="bx--label">Executing device</legend>
+    <ibm-radio-group
+      aria-label="radiogroup"
+      (change)="setDevice($event.value)"
+      >
+      <ibm-radio
+        [value]="DeviceType.QASM"
+        [checked]="device == DeviceType.QASM"
+        >
+        Simulator
+      </ibm-radio>
+      <ibm-radio
+        [value]="DeviceType.MOCK"
+        [checked]="device == DeviceType.MOCK"
+        >
+        Real Device
+      </ibm-radio>
+    </ibm-radio-group>
+  </fieldset>
+
   <fieldset *ngIf="numMeasurementsMin < numMeasurementsMax" class="bx--fieldset">
     <legend class="bx--label">Number of shots</legend>
     <ibm-radio-group
@@ -20,11 +38,7 @@
 
   <button *ngIf="status == 'ready' || status == 'measured' || status == 'loading'" [ibmButton]="status == 'ready' ? 'primary' : 'secondary'" [disabled]="status == 'loading'" (click)="measure()" [isExpressive]="true">Execute circuit</button>
 
-  <!-- <p *ngIf="status == 'measured'">
-    The measurement yielded:
-  </p> -->
-
-  <ul *ngIf="status == 'measured'" class="result-list">
+  <ul *ngIf="status == 'measured'" [ngClass]="{'single-result': data.length == 1}" class="result-list">
     <li *ngFor="let res of data" class="result">
       <img *ngIf="res.icon" [src]="res.icon">
       {{res.display}}

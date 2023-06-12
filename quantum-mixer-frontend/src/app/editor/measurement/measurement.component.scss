@@ -29,6 +29,16 @@ p, button, ul {
   }
 }
 
+.result-list.single-result li {
+  display: block;
+  text-align: center;
+
+  img {
+    margin: auto;
+    height: 4em;
+  }
+}
+
 button {
   font-size: 1.5rem;
   line-height: 1.8rem;

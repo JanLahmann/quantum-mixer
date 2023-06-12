@@ -10,6 +10,9 @@ USECASES = [
     ),
     Usecase.from_file(
         os.path.join(os.path.dirname(os.path.realpath(__file__)), 'usecase_ice.yml')
+    ),
+    Usecase.from_file(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), 'usecase_cocktail.yml')
     )
 ]
 

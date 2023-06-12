@@ -4,38 +4,38 @@ description: QoffeeMaker
 bitMapping:
   - bits: '000'
     name: Tea
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: NotImplemented
   - bits: '001'
     name: Hot Chocolate
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.MilkFroth
   - bits: '010'
     name: Espresso
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Espresso
     options:
     - key: ConsumerProducts.CoffeeMaker.Option.FillQuantity
       value: 50
   - bits: '011'
     name: Coffee
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Coffee
   - bits: '100'
     name: Cappucino
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.Cappuccino
   - bits: '101'
     name: Latte Macchiato
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.Beverage.LatteMacchiato
   - bits: '110'
     name: Viennese Melange
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.WienerMelange
   - bits: '111'
     name: Americano
-    icon: /assets/beverage-latte-macchiato.png
+    icon: ''
     key: ConsumerProducts.CoffeeMaker.Program.CoffeeWorld.Americano
 numQubits: 3
 numMeasurements:
