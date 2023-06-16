@@ -148,6 +148,11 @@ class QoffeeUsecase(Usecase):
         drink_data_key     = drink_data.key
         drink_data_options = [] if drink_data.options is None else list(map(lambda x: x.dict(), drink_data.options))
 
+        # quickfix: homeconnect api only accepts integer values, not strings
+        for option in drink_data_options:
+            if option["value"].isnumeric():
+                option["value"] = int(option["value"])
+
         self.fetch_put('/api/homeappliances/{}/programs/active'.format(self.preferences.selectedMachineHaId), {
             'data': {
                 'key': drink_data_key,
