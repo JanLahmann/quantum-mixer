@@ -1,0 +1,45 @@
+## STAGE: builder-frontend
+FROM node:18-bookworm AS builder-frontend
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY quantum-mixer-frontend/package.json quantum-mixer-frontend/yarn.lock ./
+
+# Install dependencies
+RUN yarn install
+
+# Copy application code
+COPY quantum-mixer-frontend ./
+
+# Build application
+RUN npm run build
+
+
+## STAGE: main
+FROM python:3.11-bookworm
+
+WORKDIR /app
+
+# Install Python dependencies with Qiskit 0.45.3 (last version before 1.0 API changes)
+# This version has ARM64 wheels and includes the 'execute' function
+RUN pip install --no-cache-dir \
+    fastapi==0.95.1 \
+    uvicorn[standard]==0.22.0 \
+    qiskit==0.45.3 \
+    qiskit-aer==0.13.3 \
+    requests-oauthlib==1.3.1
+
+# Copy application code
+COPY quantum-mixer-backend ./
+
+# Copy frontend files from builder stage
+COPY --from=builder-frontend /app/dist/quantum-mixer-frontend ./public
+
+# Expose port
+EXPOSE 8080
+
+# Start the FastAPI server
+ENV PORT=8080
+CMD ["uvicorn", "quantum_mixer_backend:app", "--host", "0.0.0.0", "--port", "8080"]
