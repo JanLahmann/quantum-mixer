@@ -21,3 +21,11 @@ Should work on Apple Silicon Macs (M1/M2/M3)
 Uses node:18-bookworm and python:3.11-bookworm base images (multi-arch support)
 Qiskit 0.45.3 and qiskit-aer 0.13.3 (with pre-built ARM64 wheels)
 Direct pip installation instead of poetry export
+
+## Prebuilt image
+
+Every push to `main` builds and publishes `ghcr.io/janlahmann/quantum-mixer:<commit SHA>` and `:latest` (workflow `.github/workflows/docker-arm64.yml`). RasQberry Two pins one of these and pulls it on the Raspberry Pi:
+
+```bash
+docker pull ghcr.io/janlahmann/quantum-mixer:latest
+```
