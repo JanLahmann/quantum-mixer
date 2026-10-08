@@ -1,9 +1,11 @@
 from typing import Optional, Annotated, Union
+import html
 import json
 import os
+from urllib.parse import quote
 from pydantic import BaseModel
 from fastapi import FastAPI, Request, HTTPException
-from starlette.responses import RedirectResponse
+from starlette.responses import HTMLResponse, RedirectResponse
 from requests_oauthlib import OAuth2Session
 from quantum_mixer_backend.usecases.usecase import Usecase
 from quantum_mixer_backend.usecases.usecase_data import OrderData, UsecaseData, UsecasePreferences, UsecaseBitMappingItem
@@ -21,6 +23,38 @@ class QoffeeUsecasePreferences(UsecasePreferences):
     selectedMachineHaId: Optional[str]
     bitMapping: Annotated[list[QoffeeUsecaseBitmappingItem], "Mapping of bit configurations to products/items"]
 
+# Shown instead of a bare "Internal Server Error" when no Home Connect account
+# is configured: the OAuth login cannot work then ("OAuth 2 MUST utilize https").
+NOT_CONFIGURED_PAGE = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QoffeeMaker needs a Home Connect account</title>
+<style>
+body {{ font-family: "IBM Plex Sans", Arial, sans-serif; background: #161616; color: #f4f4f4;
+       margin: 0; padding: 48px 24px; }}
+main {{ max-width: 640px; margin: 0 auto; }}
+h1 {{ font-weight: 400; font-size: 32px; margin: 0 0 24px; }}
+p {{ font-size: 18px; line-height: 1.5; }}
+a.button {{ display: inline-block; margin: 16px 16px 0 0; padding: 14px 20px; font-size: 18px;
+           text-decoration: none; color: #fff; background: #0f62fe; }}
+a.button.secondary {{ background: #393939; }}
+code {{ font-size: 16px; }}
+</style></head>
+<body><main>
+<h1>QoffeeMaker needs a Home Connect account</h1>
+<p>QoffeeMaker orders the measured drink from a real coffee machine through
+Home Connect. This Quantum Mixer has no Home Connect account set up, so it
+cannot reach a machine.</p>
+<p>You can still build the circuit and measure it: the drink is only shown,
+not made. Qocktail and IceQream work fully.</p>
+<p>To connect a machine: create a developer account at
+<code>developer.home-connect.com</code>, then {how}</p>
+<a class="button" href="{skip}">Try it without a coffee machine</a>
+<a class="button secondary" href="/">Back to the start page</a>
+</main></body></html>
+"""
+
+
 class QoffeeUsecase(Usecase):
 
     preferences: QoffeeUsecasePreferences
@@ -33,6 +67,11 @@ class QoffeeUsecase(Usecase):
         self.client_secret = os.getenv('HOMECONNECT_CLIENT_SECRET')
         self.base_url      = os.getenv('HOMECONNECT_BASE_URL')
         self.host_address  = os.getenv('HOST_ADDRESS')
+        # Without these the OAuth login fails; Qoffee then runs as a simulation
+        self.configured    = all([self.client_id, self.client_secret, self.base_url, self.host_address])
+        # Optional text for the not-configured page: where this installation keeps
+        # the account (e.g. a settings file), instead of the environment variables
+        self.setup_hint    = os.getenv('HOMECONNECT_SETUP_HINT', '')
 
         # create oauth2 session
         self.session = OAuth2Session(
@@ -55,6 +94,8 @@ class QoffeeUsecase(Usecase):
         return super().get_preferences()
     
     def get_preferences_schema(self):
+        if not self.configured:
+            return super().get_preferences_schema()
         # get all available coffee machines
         coffee_machines = self.get_coffee_machines()
         # create a new pydantic model and allow selectedMachineHaId to be only one of the coffee machines
@@ -114,12 +155,32 @@ class QoffeeUsecase(Usecase):
         super().set_endpoints(app, prefix)
 
         @app.get('{}/auth/login'.format(prefix))
-        def login(redirect: str = '') -> RedirectResponse:
+        def login(redirect: str = ''):
+            if not self.configured:
+                # a friendly page instead of oauthlib's InsecureTransportError (500)
+                skip = '{}/auth/skip?redirect={}'.format(prefix, quote(redirect, safe=''))
+                how = html.escape(self.setup_hint) if self.setup_hint else (
+                    'start the Mixer with <code>HOMECONNECT_CLIENT_ID</code>, '
+                    '<code>HOMECONNECT_CLIENT_SECRET</code>, <code>HOMECONNECT_BASE_URL</code> '
+                    'and <code>HOST_ADDRESS</code> set.')
+                return HTMLResponse(NOT_CONFIGURED_PAGE.format(skip=html.escape(skip, quote=True), how=how))
             authorization_url, _ = self.session.authorization_url(
                 '{}/security/oauth/authorize'.format(self.base_url),
             )
             self.post_login_redirect = redirect
             return RedirectResponse(authorization_url)
+
+        @app.get('{}/auth/skip'.format(prefix))
+        def skip_login(request: Request, redirect: str = '') -> RedirectResponse:
+            # simulation only: no login, no order button
+            if not self.configured:
+                self.data.loginRequired = False
+                self.data.hasOrder = False
+            # only redirect within this app
+            local = redirect.startswith('/') and not redirect.startswith('//')
+            if not (local or redirect.startswith(str(request.base_url))):
+                redirect = '/'
+            return RedirectResponse(redirect)
 
         @app.get('{}/auth/callback'.format(prefix))
         def handle_authorization_callback(request: Request, code: str = '') -> RedirectResponse: 
@@ -139,6 +200,8 @@ class QoffeeUsecase(Usecase):
             return self.handle_order(data)
 
     def handle_order(self, data: OrderData) -> bool:
+        if not self.configured:
+            raise HTTPException(status_code=409, detail='QoffeeMaker needs a Home Connect account to order a drink.')
         if len(data.items) != 1:
             raise RuntimeError("Unable to process other than 1 item, got {}".format(len(data.items)))
 
